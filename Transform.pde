@@ -1,0 +1,91 @@
+class Transform{
+    public Vector2D pos;
+    private ArrayList<Vector2D> initialVertexPos = new ArrayList<>();
+    public Matrix vertexTransform;
+    public float rotInRad = 0;
+    public Matrix rotMatrix = new Matrix(2, 2);
+    private Matrix distances;
+    
+    public Vector2D size;
+    public Collider2D collider;
+    public boolean isTrigger = false;
+    
+    public Transform(Vector2D pos, Collider2D collider){
+        this.pos = pos;
+        this.collider = collider;
+        
+    }
+    
+    public void setVertex(Vector2D size){
+        if (this.collider == Collider2D.Polygon) {
+            System.err.println("No vertex information provided for Polygon Collider, setting it to Rectangle...");
+            this.collider = Collider2D.Rectangle;
+        }
+        
+        
+        this.size = size;
+        switch (this.collider){
+            case Circle:
+                this.initialVertexPos.add(new Vector2D(this.pos.x, this.pos.y));
+                break;
+            case Square:
+            case Rectangle:
+                this.initialVertexPos.add(new Vector2D(this.pos.x + size.x / 2, this.pos.y + size.y / 2));
+                this.initialVertexPos.add(new Vector2D(this.pos.x + size.x / 2, this.pos.y - size.y / 2));
+                this.initialVertexPos.add(new Vector2D(this.pos.x - size.x / 2, this.pos.y - size.y / 2));
+                this.initialVertexPos.add(new Vector2D(this.pos.x - size.x / 2, this.pos.y + size.y / 2));             
+                break;
+            default:
+                break;
+        }
+        this.createVertexMatrix();
+        this.distances = this.getDistances();
+    }
+    
+    private void createVertexMatrix(){
+        this.vertexTransform = new Matrix(2, initialVertexPos.size());
+        for (int i = 0; i < initialVertexPos.size(); i++){
+            this.vertexTransform.setVal(0, i, initialVertexPos.get(i).x);
+            this.vertexTransform.setVal(1, i, initialVertexPos.get(i).y);
+        }
+    }
+    
+    private void createRotMatrix(){
+        float[][] tempArray = {{(float) Math.cos(this.rotInRad), (float) -Math.sin(this.rotInRad)}, 
+                               {(float) Math.sin(this.rotInRad), (float) Math.cos(this.rotInRad)}};
+        this.rotMatrix.setArray(tempArray);
+    }
+    
+    //Coordinates in terms of the body frame
+    private Matrix getDistances(){
+        Matrix distanceMatrix = new Matrix(vertexTransform.rows, vertexTransform.columns);
+        for (int i = 0; i < this.vertexTransform.columns; i++){
+            distanceMatrix.setVal(0, i, this.vertexTransform.getVal(0, i) - this.pos.x);
+            distanceMatrix.setVal(1, i, this.vertexTransform.getVal(1, i) - this.pos.y);
+        }
+        return distanceMatrix;
+    }
+    
+    public void translatePos(){
+        for (int i = 0; i < this.vertexTransform.columns; i++){
+            this.vertexTransform.setVal(0, i, this.distances.getVal(0, i) + this.pos.x);
+            this.vertexTransform.setVal(1, i, this.distances.getVal(1, i) + this.pos.y);
+        }
+    }
+    
+    public Matrix translatePos(Vector2D toroidalPos){
+        Matrix toroidalTransform = new Matrix(2, this.vertexTransform.columns);
+        for (int i = 0; i < toroidalTransform.columns; i++){
+            toroidalTransform.setVal(0, i, this.distances.getVal(0, i) + toroidalPos.x);
+            toroidalTransform.setVal(1, i, this.distances.getVal(1, i) + toroidalPos.y);
+        }
+        return toroidalTransform;
+    }
+    
+    public void rotateVertices(float rotInRad){
+        this.rotInRad = rotInRad;
+        this.createRotMatrix();
+        this.distances = this.rotMatrix.matMul(this.distances);
+        this.translatePos();
+    }
+}
