@@ -9,7 +9,6 @@ class Transform{
     
     public Vector2D size;
     public Collider2D collider;
-    public boolean isTrigger = false;
     
     public Transform(Vector2D pos, Collider2D collider){
         this.pos = pos;
@@ -66,6 +65,7 @@ class Transform{
             temp = new Vector2D(temp.y, -temp.x);
             normals.setVec(temp.normalise(), i);
         }
+        this.edgeNormals = normals;
     }
     
     private void createRotMatrix(){
@@ -104,7 +104,7 @@ class Transform{
         this.rotInRad = rotInRad;
         this.createRotMatrix();
         this.distances = this.rotMatrix.matMul(this.distances);
-        if (this.collider != Collider2D.Circle) { this.edgeNormals = this.rotMatrix.matMul(this.edgeNormals); }
+        if (this.edgeNormals != null) { this.edgeNormals = this.rotMatrix.matMul(this.edgeNormals); }
         this.translatePos();
     }
 }

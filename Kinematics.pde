@@ -59,6 +59,9 @@ enum Collider2D{
     
     public boolean enabled = true;
     public boolean isStatic = false;
+    public boolean isTrigger = false;
+    
+    
 }
 
 class Force2D extends Vector2D{

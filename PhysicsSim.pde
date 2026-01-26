@@ -18,8 +18,8 @@ void setup(){
   objects.get(1).setColor(0, 255, 0);
   objects.get(0).wrapAround = true;
   objects.get(1).wrapAround = true;
-  objects.get(0).rb.velocity = new Vector2D(0, 0);
-  objects.get(1).rb.velocity = new Vector2D(0, 0);
+  //objects.get(0).rb.velocity = new Vector2D(2, 1.5);
+  //objects.get(1).rb.velocity = new Vector2D(3, -1.5);
   
   
   
@@ -28,6 +28,7 @@ void setup(){
 void draw(){
   background(0);
   ShapeDrawer sd = new ShapeDrawer();
+  CollisionHandler ch = new CollisionHandler();
   
   
   /*for (int sqrNo = 0; sqrNo < 2; sqrNo++){
@@ -46,7 +47,10 @@ void draw(){
   
   objects.get(1).transform.pos = new Vector2D(mouseX, mouseY);
   sd.updateAll(objects);
+  ch.handleCollisions(objects);
+  fill(objects.get(0).colr[0], objects.get(0).colr[1], objects.get(0).colr[2]);
   sd.drawQuad(objects.get(0).points());
+  fill(objects.get(1).colr[0], objects.get(0).colr[1], objects.get(0).colr[2]);
   sd.drawQuad(objects.get(1).points());
 }
 
