@@ -8,7 +8,17 @@ class Vector2D {
     }
     
     public Vector2D vectorSum(Vector2D vec){
-        return new Vector2D(this.x + vec.x, this.y + vec.y);
+        this.x += vec.x;
+        this.y += vec.y;
+        
+        return this;
+    }
+    
+    public Vector2D negate(){
+        this.x = -this.x;
+        this.y = -this.y;
+        
+        return this;
     }
     
     public float dotProduct(Vector2D vec){
@@ -18,6 +28,14 @@ class Vector2D {
     public float magnitude(){
         return (float) Math.hypot(this.x, this.y);
     } 
+    
+    public Vector2D normalise(){
+        float norm = this.magnitude();
+        this.x /= norm;
+        this.y /= norm;
+        
+        return this;
+    }
 }
 
 class Matrix {
@@ -34,7 +52,7 @@ class Matrix {
     }
     
     public float getVal(int rowIndex, int columnIndex) throws IndexOutOfBoundsException{
-        if (rowIndex >= rows || columnIndex >= columns){
+        if (rowIndex >= this.rows || columnIndex >= this.columns){
             throw new IndexOutOfBoundsException();
         }
         
@@ -42,11 +60,28 @@ class Matrix {
     }
     
     public void setVal(int rowIndex, int columnIndex, float value) throws IndexOutOfBoundsException{
-        if (rowIndex >= rows || columnIndex >= columns){
+        if (rowIndex >= this.rows || columnIndex >= this.columns){
             throw new IndexOutOfBoundsException();
         }
         
         this.array[rowIndex][columnIndex] = value;
+    }
+    
+    public void setVec(Vector2D vec, int columnIndex) throws IndexOutOfBoundsException{
+        if (this.rows > 2 || columnIndex >= this.columns){
+            throw new IndexOutOfBoundsException();
+        }
+        this.array[0][columnIndex] = vec.x;
+        this.array[1][columnIndex] = vec.y;
+        
+    }
+    
+    public Vector2D getVec(int columnIndex) throws IndexOutOfBoundsException {
+        if (this.rows > 2 || columnIndex >= this.columns){
+            throw new IndexOutOfBoundsException();
+        }
+        
+        return new Vector2D(this.array[0][columnIndex], this.array[1][columnIndex]);
     }
     
     public void setArray(float[][] matrix){

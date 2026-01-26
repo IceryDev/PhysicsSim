@@ -18,8 +18,8 @@ void setup(){
   objects.get(1).setColor(0, 255, 0);
   objects.get(0).wrapAround = true;
   objects.get(1).wrapAround = true;
-  objects.get(0).rb.velocity = new Vector2D(2, 1.5);
-  objects.get(1).rb.velocity = new Vector2D(-2, 2.5);
+  objects.get(0).rb.velocity = new Vector2D(0, 0);
+  objects.get(1).rb.velocity = new Vector2D(0, 0);
   
   
   
@@ -27,12 +27,12 @@ void setup(){
 
 void draw(){
   background(0);
+  ShapeDrawer sd = new ShapeDrawer();
   
   
-  for (int sqrNo = 0; sqrNo < 2; sqrNo++){
+  /*for (int sqrNo = 0; sqrNo < 2; sqrNo++){
     Shape2D tempObj = objects.get(sqrNo);
     tempObj.changeColor(colorIncrementVal[0], colorIncrementVal[1], colorIncrementVal[2]);
-    
     
     fill(tempObj.colr[0], tempObj.colr[1], tempObj.colr[2]);
     
@@ -40,12 +40,14 @@ void draw(){
     tempObj.update();
     Vector2D toroidalPos = tempObj.rb.getToroidalPos();
     
-    
-    ShapeDrawer sd = new ShapeDrawer();
-    
     sd.drawQuad(tempObj.transform.vertexTransform, tempObj.transform.translatePos(toroidalPos));
     
-  }
+  }*/
+  
+  objects.get(1).transform.pos = new Vector2D(mouseX, mouseY);
+  sd.updateAll(objects);
+  sd.drawQuad(objects.get(0).points());
+  sd.drawQuad(objects.get(1).points());
 }
 
 void mousePressed(){

@@ -2,6 +2,7 @@ class Transform{
     public Vector2D pos;
     private ArrayList<Vector2D> initialVertexPos = new ArrayList<>();
     public Matrix vertexTransform;
+    public Matrix edgeNormals;
     public float rotInRad = 0;
     public Matrix rotMatrix = new Matrix(2, 2);
     private Matrix distances;
@@ -39,6 +40,7 @@ class Transform{
                 break;
         }
         this.createVertexMatrix();
+        this.createEdgeNormals();
         this.distances = this.getDistances();
     }
     
@@ -47,6 +49,22 @@ class Transform{
         for (int i = 0; i < initialVertexPos.size(); i++){
             this.vertexTransform.setVal(0, i, initialVertexPos.get(i).x);
             this.vertexTransform.setVal(1, i, initialVertexPos.get(i).y);
+        }
+    }
+    
+    private void createEdgeNormals(){
+        if (this.collider == Collider2D.Circle){ return; } //If the collider is a circle then there are infinite normals, so the edge normals remain null
+        
+        Matrix normals = new Matrix(this.vertexTransform.rows, this.vertexTransform.columns);
+        Vector2D temp = new Vector2D(this.vertexTransform.getVal(0, 0) - this.vertexTransform.getVal(0, this.vertexTransform.columns - 1),
+                                     this.vertexTransform.getVal(1, 0) - this.vertexTransform.getVal(1, this.vertexTransform.columns - 1));
+        temp = new Vector2D(temp.y, -temp.x);
+        temp = temp.normalise();
+        normals.setVec(temp, 0);
+        for (int i = 1; i < normals.rows; i++){
+            temp = this.vertexTransform.getVec(i).vectorSum(this.vertexTransform.getVec(i - 1).negate());
+            temp = new Vector2D(temp.y, -temp.x);
+            normals.setVec(temp.normalise(), i);
         }
     }
     
@@ -82,10 +100,11 @@ class Transform{
         return toroidalTransform;
     }
     
-    public void rotateVertices(float rotInRad){
+    public void rotateVertices(float rotInRad){ 
         this.rotInRad = rotInRad;
         this.createRotMatrix();
         this.distances = this.rotMatrix.matMul(this.distances);
+        if (this.collider != Collider2D.Circle) { this.edgeNormals = this.rotMatrix.matMul(this.edgeNormals); }
         this.translatePos();
     }
 }

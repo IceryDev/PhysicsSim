@@ -40,6 +40,10 @@ class Shape2D {
         }
     }
     
+    public Matrix points(){
+        return this.transform.vertexTransform;
+    }
+    
     public void changeColor(int spdR, int spdG, int spdB){
         int[] spdRGB = {spdR, spdG, spdB};
         for (int i = 0; i < 3; i++){
@@ -57,6 +61,12 @@ class Shape2D {
 }
 
 class ShapeDrawer{
+    public void updateAll(ArrayList<Shape2D> obj){
+        for (int i = 0; i < obj.size(); i++){
+            obj.get(i).update();
+        }
+    }
+    
     public void drawQuad(Matrix vertices){
         quad(vertices.getVal(0, 0), vertices.getVal(1, 0),
              vertices.getVal(0, 1), vertices.getVal(1, 1),
