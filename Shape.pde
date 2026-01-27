@@ -67,14 +67,20 @@ class ShapeDrawer{
         }
     }
     
-    public void drawQuad(Matrix vertices){
+    public void drawQuad(Shape2D obj){
+        Matrix vertices = obj.points();
+        if (vertices.columns != 4) { System.err.println("A quadrilateral has to have 4 vertices!"); return;}
+        fill(obj.colr[0], obj.colr[1], obj.colr[2]);
         quad(vertices.getVal(0, 0), vertices.getVal(1, 0),
              vertices.getVal(0, 1), vertices.getVal(1, 1),
              vertices.getVal(0, 2), vertices.getVal(1, 2),
              vertices.getVal(0, 3), vertices.getVal(1, 3));    
     }
     
-    public void drawQuad(Matrix vertices, Matrix toroidal){
+    public void drawQuad(Shape2D obj, Matrix toroidal){
+        Matrix vertices = obj.points();
+        if (vertices.columns != 4) { System.err.println("A quadrilateral has to have 4 vertices!"); return;}
+        fill(obj.colr[0], obj.colr[1], obj.colr[2]);
         quad(vertices.getVal(0, 0), vertices.getVal(1, 0),
              vertices.getVal(0, 1), vertices.getVal(1, 1),
              vertices.getVal(0, 2), vertices.getVal(1, 2),

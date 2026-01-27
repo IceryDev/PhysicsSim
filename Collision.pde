@@ -2,7 +2,7 @@ class CollisionHandler{
     public void handleCollisions(ArrayList<Shape2D> objects){
         if (objects.size() < 2) { return; }
         for (int i = 0; i < objects.size() - 1; i++){ //Change this it won't work for multiple objects
-            if (isColliding(objects.get(i).transform, objects.get(i+1).transform, 2) != null){
+            if (isColliding(objects.get(i).transform, objects.get(i+1).transform) != null){
                 objects.get(i).setColor(255, 0, 0);
                 objects.get(i+1).setColor(255, 0, 0);
             }
@@ -17,39 +17,46 @@ class CollisionHandler{
     
     }
     
-    private Collision2D isColliding(Transform objA, Transform objB, int collisionType){
-        switch(collisionType){
-            case 0: //Circle-Circle
-                break;
-            case 1: //Polygon-Circle (objA is the polygon)
-                break;
-            case 2: //Polygon-Polygon
-                int colsA = objA.edgeNormals.columns;
-                int colsB = objB.edgeNormals.columns;
-                Vector2D collisionAxis = null;
-                float min = Float.MAX_VALUE;
-                for (int i = 0; i < colsA + colsB; i++){ //<>//
-                    Vector2D currentEdgeNormal = (i < colsA) ? objA.edgeNormals.getVec(i) : objB.edgeNormals.getVec(i - colsA);
-                    Vector2D minMaxA = getMaxAndMinProjection(currentEdgeNormal, objA.vertexTransform);
-                    Vector2D minMaxB = getMaxAndMinProjection(currentEdgeNormal, objB.vertexTransform);
-                    
-                    if (minMaxA.y < minMaxB.x || minMaxB.y < minMaxA.x){
-                        return null;
-                    }
-                    
-                    float overlap = Math.min(minMaxA.y, minMaxB.y) - Math.max(minMaxA.x, minMaxB.x); // x is min and y is max
-                    
-                    if (min > overlap) {
-                        collisionAxis = currentEdgeNormal;
-                        min = overlap;
-                    }
-                }
-                
-                return new Collision2D(min, collisionAxis, objA, objB);
-            default:
-                break;
+    private Collision2D isColliding(Transform objA, Transform objB){
+        Vector2D collisionAxis = null;
+        float min = Float.MAX_VALUE;
+        
+        boolean isPolyA = (objA.collider != Collider2D.Circle);
+        boolean isPolyB = (objB.collider != Collider2D.Circle);
+        
+        int colsA = (isPolyA) ? objA.edgeNormals.columns : 0;
+        int colsB = (isPolyB) ? objB.edgeNormals.columns : 0;
+        
+        if (isPolyA == isPolyB && isPolyA == false){
+            Vector2D displacement = new Vector2D(0, 0);
+            displacement.vectorSum(objA.pos).vectorSum(objB.pos.negate());
+            if (displacement.magnitude() >= (objA.size.x + objB.size.x)/2){
+                return null;
+            }
+            return new Collision2D(displacement.magnitude(), displacement, objA, objB);
         }
-        return null;
+        
+        for (int i = 0; i < colsA + colsB; i++){
+             Vector2D currentEdgeNormal = (i < colsA) ? objA.edgeNormals.getVec(i) : objB.edgeNormals.getVec(i - colsA);
+             Vector2D minMaxA = (isPolyA) ? getMaxAndMinProjection(currentEdgeNormal, objA.vertexTransform) : 
+                                                                     getMaxAndMinCircle(currentEdgeNormal, objA.pos, objA.size.x);
+             Vector2D minMaxB = (isPolyB) ? getMaxAndMinProjection(currentEdgeNormal, objB.vertexTransform) : 
+                                                                     getMaxAndMinCircle(currentEdgeNormal, objB.pos, objB.size.x);
+                    
+             if (minMaxA.y < minMaxB.x || minMaxB.y < minMaxA.x){
+                 return null;
+             }
+                    
+             float overlap = Math.min(minMaxA.y, minMaxB.y) - Math.max(minMaxA.x, minMaxB.x); // x is min and y is max
+                    
+             if (min > overlap) {
+                 collisionAxis = currentEdgeNormal;
+                 min = overlap;
+             }
+        }
+                
+        return new Collision2D(min, collisionAxis, objA, objB); //<>//
+        //return null;
     }
     
     private Vector2D getMaxAndMinProjection(Vector2D axis, Matrix vertices){
@@ -61,6 +68,11 @@ class CollisionHandler{
             max = Math.max(max, tmp);
         }
         return new Vector2D(min, max);
+    }
+    
+    private Vector2D getMaxAndMinCircle(Vector2D axis, Vector2D centre, float diameter){
+        float projectionScale = centre.scalarProject(axis, false);
+        return new Vector2D(projectionScale - (diameter/2), projectionScale + (diameter/2));
     }
 }
 
