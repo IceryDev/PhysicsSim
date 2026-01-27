@@ -1,6 +1,7 @@
 class Transform{
     public Vector2D pos;
     private ArrayList<Vector2D> initialVertexPos = new ArrayList<>();
+    public Shape2D parent;
     public Matrix vertexTransform;
     public Matrix edgeNormals;
     public float rotInRad = 0;
@@ -10,9 +11,10 @@ class Transform{
     public Vector2D size;
     public Collider2D collider;
     
-    public Transform(Vector2D pos, Collider2D collider){
+    public Transform(Vector2D pos, Collider2D collider, Shape2D parent){
         this.pos = pos;
         this.collider = collider;
+        this.parent = parent;
         
     }
     

@@ -17,7 +17,7 @@ class Shape2D {
     public boolean wrapAround = false;
     
     public Shape2D(float posX, float posY, float sizeX, float sizeY, Collider2D collider){
-        this.transform = new Transform(new Vector2D(posX, posY), collider);
+        this.transform = new Transform(new Vector2D(posX, posY), collider, this);
         this.rb = new Rigidbody2D(this.transform);
         
         this.transform.setVertex(new Vector2D(sizeX, sizeY));

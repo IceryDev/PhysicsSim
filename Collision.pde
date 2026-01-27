@@ -1,21 +1,27 @@
 class CollisionHandler{
+  
+    ArrayList<Collision2D> collisions = new ArrayList<>();
+    
     public void handleCollisions(ArrayList<Shape2D> objects){
         if (objects.size() < 2) { return; }
+        
         for (int i = 0; i < objects.size(); i++){ //Change this it won't work for multiple objects
             for (int j = i + 1; j < objects.size(); j++){
                 Collision2D tmp = isColliding(objects.get(i).transform, objects.get(j).transform);
                 if (tmp != null){
-                    objects.get(i).setColor(255, 0, 0);
-                    objects.get(j).setColor(255, 0, 0);
-                    System.out.println(objects.get(0).colr[1]);
-                }
-                else {
-                    objects.get(i).setColor(255, 255, 255);
-                    objects.get(j).setColor(255, 255, 255);
-                    System.out.println(objects.get(0).colr[1]);
+                    collisions.add(tmp);
                 }
             }
+            objects.get(i).setColor(255, 255, 255);
         }
+        
+        for (Collision2D collision : collisions){
+            collision.collidedObjects[0].parent.setColor(255, 0, 0);
+            collision.collidedObjects[1].parent.setColor(255, 0, 0);
+        }
+        
+        collisions.clear();
+        
     }
     
     private void calculateResults(){
