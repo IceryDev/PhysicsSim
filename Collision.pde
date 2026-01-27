@@ -1,14 +1,19 @@
 class CollisionHandler{
     public void handleCollisions(ArrayList<Shape2D> objects){
         if (objects.size() < 2) { return; }
-        for (int i = 0; i < objects.size() - 1; i++){ //Change this it won't work for multiple objects
-            if (isColliding(objects.get(i).transform, objects.get(i+1).transform) != null){
-                objects.get(i).setColor(255, 0, 0);
-                objects.get(i+1).setColor(255, 0, 0);
-            }
-            else {
-                objects.get(i).setColor(255, 255, 255);
-                objects.get(i+1).setColor(255, 255, 255);
+        for (int i = 0; i < objects.size(); i++){ //Change this it won't work for multiple objects
+            for (int j = i + 1; j < objects.size(); j++){
+                Collision2D tmp = isColliding(objects.get(i).transform, objects.get(j).transform);
+                if (tmp != null){
+                    objects.get(i).setColor(255, 0, 0);
+                    objects.get(j).setColor(255, 0, 0);
+                    System.out.println(objects.get(0).colr[1]);
+                }
+                else {
+                    objects.get(i).setColor(255, 255, 255);
+                    objects.get(j).setColor(255, 255, 255);
+                    System.out.println(objects.get(0).colr[1]);
+                }
             }
         }
     }
@@ -33,29 +38,32 @@ class CollisionHandler{
             if (displacement.magnitude() >= (objA.size.x + objB.size.x)/2){
                 return null;
             }
+            
             return new Collision2D(displacement.magnitude(), displacement, objA, objB);
         }
-        
-        for (int i = 0; i < colsA + colsB; i++){
-             Vector2D currentEdgeNormal = (i < colsA) ? objA.edgeNormals.getVec(i) : objB.edgeNormals.getVec(i - colsA);
-             Vector2D minMaxA = (isPolyA) ? getMaxAndMinProjection(currentEdgeNormal, objA.vertexTransform) : 
+        else{
+            for (int i = 0; i < colsA + colsB; i++){
+               Vector2D currentEdgeNormal = (i < colsA) ? objA.edgeNormals.getVec(i) : objB.edgeNormals.getVec(i - colsA);
+               Vector2D minMaxA = (isPolyA) ? getMaxAndMinProjection(currentEdgeNormal, objA.vertexTransform) : 
                                                                      getMaxAndMinCircle(currentEdgeNormal, objA.pos, objA.size.x);
-             Vector2D minMaxB = (isPolyB) ? getMaxAndMinProjection(currentEdgeNormal, objB.vertexTransform) : 
+               Vector2D minMaxB = (isPolyB) ? getMaxAndMinProjection(currentEdgeNormal, objB.vertexTransform) : 
                                                                      getMaxAndMinCircle(currentEdgeNormal, objB.pos, objB.size.x);
                     
-             if (minMaxA.y < minMaxB.x || minMaxB.y < minMaxA.x){
-                 return null;
-             }
+               if (minMaxA.y < minMaxB.x || minMaxB.y < minMaxA.x){
+                   return null;
+               }
                     
-             float overlap = Math.min(minMaxA.y, minMaxB.y) - Math.max(minMaxA.x, minMaxB.x); // x is min and y is max
+               float overlap = Math.min(minMaxA.y, minMaxB.y) - Math.max(minMaxA.x, minMaxB.x); // x is min and y is max
                     
-             if (min > overlap) {
-                 collisionAxis = currentEdgeNormal;
-                 min = overlap;
-             }
-        }
+               if (min > overlap) {
+                   collisionAxis = currentEdgeNormal;
+                   min = overlap;
+               }
+          }
                 
-        return new Collision2D(min, collisionAxis, objA, objB); //<>//
+          return new Collision2D(min, collisionAxis, objA, objB);
+        }
+         //<>//
         //return null;
     }
     

@@ -67,6 +67,14 @@ class ShapeDrawer{
         }
     }
     
+    public void drawCircle(Shape2D obj){
+        if(obj.transform.collider != Collider2D.Circle){
+            System.err.println("Cannot create a circle without a circle collider!"); return;
+        }
+        fill(obj.colr[0], obj.colr[1], obj.colr[2]);
+        ellipse(obj.transform.pos.x, obj.transform.pos.y, obj.transform.size.x, obj.transform.size.y);
+    }
+    
     public void drawQuad(Shape2D obj){
         Matrix vertices = obj.points();
         if (vertices.columns != 4) { System.err.println("A quadrilateral has to have 4 vertices!"); return;}
