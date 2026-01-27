@@ -7,6 +7,8 @@ int[] colorIncrementVal = {1, 3, 2};
 
 ArrayList<Shape2D> objects = new ArrayList<>();
 
+final int MARGIN = 20;
+
 void setup(){
   size(720, 720);
   noStroke();
@@ -15,8 +17,9 @@ void setup(){
   //                      posX, posY, sizeX, sizeY
   objects.add(new Shape2D(240,  240,  50,    50, Collider2D.Square));
   objects.get(0).setColor(255, 0, 0);
-  objects.add(new Shape2D(230,  350,  50,    50, Collider2D.Square));
+  objects.add(new Shape2D(230,  350,  100,    30, Collider2D.Rectangle));
   objects.get(1).setColor(0, 255, 0);
+  objects.get(1).transform.collider.isStatic = true;
   objects.get(0).wrapAround = true;
   objects.get(1).wrapAround = true;
   
@@ -49,7 +52,7 @@ void draw(){
     
   }*/
   
-  objects.get(1).transform.pos = new Vector2D(mouseX, mouseY);
+  objects.get(1).transform.pos = new Vector2D(mouseX, height - (MARGIN + objects.get(1).transform.size.y / 2));
   sd.updateAll(objects);
   ch.handleCollisions(objects);
   sd.drawQuad(objects.get(0));

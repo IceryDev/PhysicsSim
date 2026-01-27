@@ -60,6 +60,19 @@ enum Collider2D{
     public boolean enabled = true;
     public boolean isStatic = false;
     public boolean isTrigger = false;
+    public boolean isColliding = false;
+    
+    private float cor = 1; //Coefficient of Restitution -> 1 : Elastic, 0 : Inelastic
+    
+    public boolean setCor(float value){
+        if (value < 0 || value > 1) { return false; }
+        this.cor = value;
+        return true;
+    }
+    
+    public float getCor(){
+        return this.cor;
+    }
     
     
 }

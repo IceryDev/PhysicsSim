@@ -42,9 +42,6 @@ class Vector2D {
         return (normalise) ? this.dotProduct(vec2) / vec2.magnitude() : this.dotProduct(vec2);
     }
     
-    public float scalarProject(Vector2D vec1, Vector2D vec2, boolean normalise) {
-        return (normalise) ? vec1.dotProduct(vec2) / vec2.magnitude() : vec1.dotProduct(vec2);
-    }
 }
 
 class Matrix {

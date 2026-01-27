@@ -7,28 +7,31 @@ class CollisionHandler{
         
         for (int i = 0; i < objects.size(); i++){ //Change this it won't work for multiple objects
             for (int j = i + 1; j < objects.size(); j++){
-                Collision2D tmp = isColliding(objects.get(i).transform, objects.get(j).transform);
+                Collision2D tmp = getCollision(objects.get(i).transform, objects.get(j).transform);
                 if (tmp != null){
                     collisions.add(tmp);
                 }
             }
-            objects.get(i).setColor(255, 255, 255);
+            objects.get(i).transform.collider.isColliding = false;
         }
         
         for (Collision2D collision : collisions){
-            collision.collidedObjects[0].parent.setColor(255, 0, 0);
-            collision.collidedObjects[1].parent.setColor(255, 0, 0);
+            collision.collidedObjects[0].collider.isColliding = true;
+            collision.collidedObjects[1].collider.isColliding = true;
         }
         
+        calculateResults();
         collisions.clear();
         
     }
     
     private void calculateResults(){
-    
+        for (Collision2D c : collisions){
+            
+        }
     }
     
-    private Collision2D isColliding(Transform objA, Transform objB){
+    private Collision2D getCollision(Transform objA, Transform objB){
         Vector2D collisionAxis = null;
         float min = Float.MAX_VALUE;
         
@@ -68,9 +71,7 @@ class CollisionHandler{
           }
                 
           return new Collision2D(min, collisionAxis, objA, objB);
-        }
-         //<>//
-        //return null;
+        } //<>//
     }
     
     private Vector2D getMaxAndMinProjection(Vector2D axis, Matrix vertices){
@@ -97,7 +98,16 @@ class Collision2D{
     
     public Collision2D(float collisionDepth, Vector2D collisionAxis, Transform objA, Transform objB){
         this.collisionDepth = collisionDepth;
-        this.collisionAxis = collisionAxis;
+        
+        //Collision axis direction calculation
+        this.collisionAxis = new Vector2D(collisionAxis.x, collisionAxis.y);
+        this.collisionAxis.normalise();
+        Vector2D vecAToB = new Vector2D(objB.pos.x, objB.pos.y);
+        vecAToB.negate().vectorSum(new Vector2D(objA.pos.x, objA.pos.y));
+        if (vecAToB.scalarProject(this.collisionAxis, false) < 0){
+            this.collisionAxis.negate();
+        }
+        
         this.collidedObjects[0] = objA;
         this.collidedObjects[1] = objB;
     }
