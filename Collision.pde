@@ -27,7 +27,33 @@ class CollisionHandler{
     
     private void calculateResults(){
         for (Collision2D c : collisions){
+            float correction = 0;
+            Transform objA = c.collidedObjects[0];
+            Transform objB = c.collidedObjects[1];
+            boolean isStaticA = objA.collider.isStatic;
+            boolean isStaticB = objB.collider.isStatic;
             
+            if (isStaticA && isStaticB) {continue;}
+            
+            if (!isStaticA){ correction = (isStaticB) ? -1 : -0.5; }
+            objA.pos.vectorSum(c.collisionAxis.scalarMul(c.collisionAxis, (correction + 1) * c.collisionDepth));
+            objB.pos.vectorSum(c.collisionAxis.scalarMul(c.collisionAxis, (correction) * c.collisionDepth));
+            
+            Vector2D relativeV = new Vector2D(0, 0);
+            relativeV = relativeV.vectorSum(relativeV.negate(objA.parent.rb.velocity), objB.parent.rb.velocity); //Vb-Va
+            float velProjection = relativeV.scalarProject(c.collisionAxis, false);
+            
+            //Coefficient of Restitution
+            float coef = (objA.collider.cor + objB.collider.cor)/2;
+            float impulseMagnitude = -(1+coef) * velProjection / (((isStaticA) ? 0 : (1/objA.parent.rb.mass)) + ((isStaticB) ? 0 : (1/objB.parent.rb.mass)));
+            
+            Vector2D impulse = relativeV.scalarMul(c.collisionAxis, impulseMagnitude);
+            
+            objA.parent.rb.applyForce(new Force2D(-impulse.x, -impulse.y, ForceMode.Impulse));
+            objB.parent.rb.applyForce(new Force2D(impulse.x, impulse.y, ForceMode.Impulse));
+            
+            //c.collidedObjects[1].parent.rb.velocity.x = 0;
+            //c.collidedObjects[0].parent.rb.velocity.x = 0;
         }
     }
     
@@ -40,6 +66,7 @@ class CollisionHandler{
         
         int colsA = (isPolyA) ? objA.edgeNormals.columns : 0;
         int colsB = (isPolyB) ? objB.edgeNormals.columns : 0;
+        //System.out.println(colsA + ":" + colsB);
         
         if (isPolyA == isPolyB && isPolyA == false){
             Vector2D displacement = new Vector2D(0, 0);
@@ -52,6 +79,7 @@ class CollisionHandler{
         }
         else{
             for (int i = 0; i < colsA + colsB; i++){
+               
                Vector2D currentEdgeNormal = (i < colsA) ? objA.edgeNormals.getVec(i) : objB.edgeNormals.getVec(i - colsA);
                Vector2D minMaxA = (isPolyA) ? getMaxAndMinProjection(currentEdgeNormal, objA.vertexTransform) : 
                                                                      getMaxAndMinCircle(currentEdgeNormal, objA.pos, objA.size.x);
@@ -68,10 +96,9 @@ class CollisionHandler{
                    collisionAxis = currentEdgeNormal;
                    min = overlap;
                }
-          }
-                
-          return new Collision2D(min, collisionAxis, objA, objB);
-        } //<>//
+            }
+            return new Collision2D(min, collisionAxis, objA, objB);
+        } 
     }
     
     private Vector2D getMaxAndMinProjection(Vector2D axis, Matrix vertices){
@@ -96,11 +123,11 @@ class Collision2D{
     public Vector2D collisionAxis; // null if no collision
     public Transform[] collidedObjects = new Transform[2];
     
-    public Collision2D(float collisionDepth, Vector2D collisionAxis, Transform objA, Transform objB){
+    public Collision2D(float collisionDepth, Vector2D axis, Transform objA, Transform objB){
         this.collisionDepth = collisionDepth;
         
         //Collision axis direction calculation
-        this.collisionAxis = new Vector2D(collisionAxis.x, collisionAxis.y);
+        this.collisionAxis = new Vector2D(axis.x, axis.y);
         this.collisionAxis.normalise();
         Vector2D vecAToB = new Vector2D(objB.pos.x, objB.pos.y);
         vecAToB.negate().vectorSum(new Vector2D(objA.pos.x, objA.pos.y));
@@ -110,5 +137,6 @@ class Collision2D{
         
         this.collidedObjects[0] = objA;
         this.collidedObjects[1] = objB;
+        
     }
 }

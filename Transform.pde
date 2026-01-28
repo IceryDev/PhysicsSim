@@ -62,7 +62,7 @@ class Transform{
         temp = new Vector2D(temp.y, -temp.x);
         temp = temp.normalise();
         normals.setVec(temp, 0);
-        for (int i = 1; i < normals.rows; i++){
+        for (int i = 1; i < normals.columns; i++){
             temp = this.vertexTransform.getVec(i).vectorSum(this.vertexTransform.getVec(i - 1).negate());
             temp = new Vector2D(temp.y, -temp.x);
             normals.setVec(temp.normalise(), i);

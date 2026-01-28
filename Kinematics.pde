@@ -28,7 +28,7 @@ class Rigidbody2D {
     }
     
     public void applyForce(Force2D force){
-        if (Math.abs(force.x - this.force.x) < PRECISION && Math.abs(force.y - this.force.y) < PRECISION && force.mode == ForceMode.Impulse) { //<>//
+        if (Math.abs(force.x - this.force.x) < PRECISION && Math.abs(force.y - this.force.y) < PRECISION && force.mode == ForceMode.Impulse) {
             this.force = new Force2D(0, 0, ForceMode.Impulse);
         }
         else {

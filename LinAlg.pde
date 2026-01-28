@@ -7,6 +7,7 @@ class Vector2D {
         this.y = y;
     }
     
+    
     public Vector2D vectorSum(Vector2D vec){
         this.x += vec.x;
         this.y += vec.y;
@@ -14,11 +15,30 @@ class Vector2D {
         return this;
     }
     
+    public Vector2D vectorSum(Vector2D vec1, Vector2D vec2){
+        return new Vector2D(vec1.x+vec2.x, vec1.y+vec2.y);
+    }
+    
+    public Vector2D scalarMul(float value){
+        this.x *= value;
+        this.y *= value;
+        
+        return this;
+    }
+    
+    public Vector2D scalarMul(Vector2D vec, float value){
+        return new Vector2D(vec.x * value, vec.y * value);
+    }
+    
     public Vector2D negate(){
         this.x = -this.x;
         this.y = -this.y;
         
         return this;
+    }
+    
+    public Vector2D negate(Vector2D vec){
+        return new Vector2D(-vec.x, -vec.y);
     }
     
     public float dotProduct(Vector2D vec){
