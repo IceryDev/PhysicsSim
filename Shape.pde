@@ -66,6 +66,18 @@ class ShapeDrawer{
             obj.get(i).update();
         }
     }
+
+    public void drawAll(ArrayList<Shape2D> obj){
+        for (Shape2D shape : obj){
+            if (shape.transform.collider == Collider2D.Circle){
+                drawCircle(shape);
+            }
+            else if (shape.transform.vertexTransform.columns == 4){
+                if (shape.wrapAround){drawQuad(shape, shape.transform.translatePos(shape.rb.getToroidalPos()));}
+                else {drawQuad(shape);}
+            }
+        }
+    }
     
     public void drawCircle(Shape2D obj){
         if(obj.transform.collider != Collider2D.Circle){

@@ -5,6 +5,7 @@ class Transform{
     public Matrix vertexTransform;
     public Matrix edgeNormals;
     public float rotInRad = 0;
+    private float currentRot = 0;
     public Matrix rotMatrix = new Matrix(2, 2);
     private Matrix distances;
     
@@ -104,9 +105,15 @@ class Transform{
     
     public void rotateVertices(float rotInRad){ 
         this.rotInRad = rotInRad;
+        this.currentRot = (this.currentRot + rotInRad) % ((float) Math.PI * 2);
         this.createRotMatrix();
         this.distances = this.rotMatrix.matMul(this.distances);
         if (this.edgeNormals != null) { this.edgeNormals = this.rotMatrix.matMul(this.edgeNormals); }
         this.translatePos();
+    }
+
+    public void setRotation(float radians){
+        this.rotateVertices(radians - this.currentRot);
+        this.currentRot = radians;
     }
 }

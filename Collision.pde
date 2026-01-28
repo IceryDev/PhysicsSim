@@ -35,7 +35,7 @@ class CollisionHandler{
             boolean isStaticA = objA.collider.isStatic;
             boolean isStaticB = objB.collider.isStatic;
             
-            if (isStaticA && isStaticB) {continue;}
+            if ((isStaticA && isStaticB)) {continue;}
             
             if (!isStaticA){ correction = (isStaticB) ? -1 : -0.5; }
             objA.pos.vectorSum(c.collisionAxis.copy().scalarMul((correction + 1) * c.collisionDepth));
@@ -52,18 +52,9 @@ class CollisionHandler{
             //Coefficient of Restitution
             float coef = Math.min(objA.collider.getCor(), objB.collider.getCor());
             float impulseMagnitude = -(1+coef) * velProjection / (((isStaticA) ? 0 : (1/objA.parent.rb.mass)) + ((isStaticB) ? 0 : (1/objB.parent.rb.mass)));
-            if (objA.vertexTransform.columns == 1 || objB.vertexTransform.columns == 1){
-                System.out.println("CollisionDepth: " + c.collisionDepth);
-                System.out.println("Proj: " + relativeV.x + ":" + relativeV.y);
-                System.out.println("VelocityA: " + objA.parent.rb.velocity.x + ":" + objA.parent.rb.velocity.y);
-                System.out.println("VelocityB: " + objB.parent.rb.velocity.x + ":" + objB.parent.rb.velocity.y);
-                System.out.println("Obj: " + objA.vertexTransform.columns + ":" + objB.vertexTransform.columns);
-                System.out.println("Magnitude: " + impulseMagnitude);
-            }
             
             Vector2D impulse = c.collisionAxis.copy().scalarMul(impulseMagnitude);
             
-            System.out.println("---------------------");
             if(!isStaticA){ objA.parent.rb.applyImpulse(new Force2D(-impulse.x, -impulse.y, ForceMode.Impulse), c); }
             if(!isStaticB){ objB.parent.rb.applyImpulse(new Force2D(impulse.x, impulse.y, ForceMode.Impulse), c); }
             c.applied = true;

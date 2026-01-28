@@ -137,3 +137,17 @@ class Matrix {
         return tempMatrix;
     }
 }
+
+class Mathf{
+
+    //I am putting this here because no static method is allowed in Processing
+    public float clamp(float variable, float min, float max){
+        if (variable <= max && variable >= min){return variable;}
+        else if (variable > max) {return max;}
+        else {return min;}
+    }
+
+    public float deg2Rad(float degrees){
+        return ( 2 * (float) Math.PI * degrees) / 360;
+    }
+}
