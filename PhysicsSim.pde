@@ -19,7 +19,7 @@ void setup(){
   //                      posX, posY, sizeX, sizeY
   objects.add(new Shape2D(240,  240,  50,    50, Collider2D.Square));
   objects.get(0).setColor(255, 0, 0);
-  objects.get(0).rb.mass = 200000;
+  objects.get(0).rb.mass = 2;
   objects.add(new Shape2D(230,  350,  100,    30, Collider2D.Rectangle));
   objects.get(1).setColor(0, 255, 0);
   objects.get(1).transform.collider.isStatic = true;
@@ -27,10 +27,18 @@ void setup(){
   objects.get(0).wrapAround = false;
   objects.get(1).wrapAround = false;
   
-  objects.add(new Shape2D(350, 350, 25, 25, Collider2D.Circle));
+  objects.add(new Shape2D(470, 470, 25, 25, Collider2D.Circle));
   objects.get(2).setColor(255, 255, 255);
-  objects.get(2).rb.velocity = new Vector2D(-2, -2);
-  //objects.get(1).rb.velocity = new Vector2D(3, -1.5);
+  objects.get(2).rb.velocity = new Vector2D(-4, -5);
+  
+  objects.add(new Shape2D(-25, height/2, 50, height * 2, Collider2D.Rectangle));
+  objects.get(3).transform.collider.isStatic = true;
+  
+  objects.add(new Shape2D(width + 25, height/2, 50, height * 2, Collider2D.Rectangle));
+  objects.get(4).transform.collider.isStatic = true;
+  
+  objects.add(new Shape2D(width/2, -25, width, 50, Collider2D.Rectangle));
+  objects.get(5).transform.collider.isStatic = true;
   
   
   
@@ -57,11 +65,14 @@ void draw(){
   
   objects.get(1).transform.pos = new Vector2D(mouseX, height - (MARGIN + objects.get(1).transform.size.y / 2));
   objects.get(1).transform.translatePos();
-  sd.updateAll(objects);
   ch.handleCollisions(objects);
+  sd.updateAll(objects); 
   sd.drawQuad(objects.get(0));
   sd.drawQuad(objects.get(1));
   sd.drawCircle(objects.get(2));
+  sd.drawQuad(objects.get(3));
+  sd.drawQuad(objects.get(4));
+  sd.drawQuad(objects.get(5));
 }
 
 void mousePressed(){

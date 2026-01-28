@@ -1,7 +1,5 @@
 class Rigidbody2D {
   
-    private double PRECISION = 1e-5;
-  
     public float mass = 1;
     
     //Kinematics
@@ -24,18 +22,18 @@ class Rigidbody2D {
         
         this.transform.rotateVertices(angularVelocity);
         
-        this.applyForce(this.force);
+        this.applyForce();
     }
     
-    public void applyForce(Force2D force){
-        if (Math.abs(force.x - this.force.x) < PRECISION && Math.abs(force.y - this.force.y) < PRECISION && force.mode == ForceMode.Impulse) {
-            this.force = new Force2D(0, 0, ForceMode.Impulse);
-        }
-        else {
-            this.force = force;
-            this.velocity.x += ((this.force.x) / this.mass);
-            this.velocity.y += ((this.force.y) / this.mass);
-        }
+    public void applyForce(){
+         this.velocity.x += ((this.force.x) / this.mass);
+         this.velocity.y += ((this.force.y) / this.mass);
+    }
+    
+    public void applyImpulse(Force2D force, Collision2D collision){
+        if (collision.applied == true) return;
+        this.velocity.x += ((force.x) / this.mass);
+        this.velocity.y += ((force.y) / this.mass);
     }
     
     public Vector2D getToroidalPos(){

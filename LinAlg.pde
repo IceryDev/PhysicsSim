@@ -7,6 +7,9 @@ class Vector2D {
         this.y = y;
     }
     
+    public Vector2D copy(){
+        return new Vector2D(this.x, this.y);
+    }
     
     public Vector2D vectorSum(Vector2D vec){
         this.x += vec.x;
