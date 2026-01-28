@@ -19,6 +19,7 @@ void setup(){
   //                      posX, posY, sizeX, sizeY
   objects.add(new Shape2D(240,  240,  50,    50, Collider2D.Square));
   objects.get(0).setColor(255, 0, 0);
+  objects.get(0).rb.mass = 200000;
   objects.add(new Shape2D(230,  350,  100,    30, Collider2D.Rectangle));
   objects.get(1).setColor(0, 255, 0);
   objects.get(1).transform.collider.isStatic = true;
@@ -26,7 +27,7 @@ void setup(){
   objects.get(0).wrapAround = false;
   objects.get(1).wrapAround = false;
   
-  objects.add(new Shape2D(350, 350, 25, 25, Collider2D.Square));
+  objects.add(new Shape2D(350, 350, 25, 25, Collider2D.Circle));
   objects.get(2).setColor(255, 255, 255);
   objects.get(2).rb.velocity = new Vector2D(-2, -2);
   //objects.get(1).rb.velocity = new Vector2D(3, -1.5);
@@ -55,11 +56,12 @@ void draw(){
   }*/
   
   objects.get(1).transform.pos = new Vector2D(mouseX, height - (MARGIN + objects.get(1).transform.size.y / 2));
+  objects.get(1).transform.translatePos();
   sd.updateAll(objects);
   ch.handleCollisions(objects);
   sd.drawQuad(objects.get(0));
   sd.drawQuad(objects.get(1));
-  sd.drawQuad(objects.get(2));
+  sd.drawCircle(objects.get(2));
 }
 
 void mousePressed(){
