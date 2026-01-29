@@ -4,9 +4,11 @@ import java.util.HashMap;
 float[] initialY = {230, 350};
 
 int[] colorIncrementVal = {1, 3, 2};
-int[] score = {0, 0};
 
 ArrayList<Shape2D> objects = new ArrayList<>();
+int previousLives = 3;
+int score = 0;
+int previousScore = 0;
 CollisionHandler ch;
 Player player;
 Opponent op;
@@ -34,9 +36,9 @@ void setup(){
   objects.add(new Shape2D(width + 25, height/2, 50, height * 2, Collider2D.Rectangle));
   objects.get(3).transform.collider.isStatic = true;
   
-  objects.add(new Shape2D(width/2, -25, width, 50, Collider2D.Rectangle));
-  objects.get(4).transform.collider.isStatic = true;
-  objects.get(4).transform.collider.isTrigger = true;
+  //objects.add(new Shape2D(width/2, -25, width, 50, Collider2D.Rectangle));
+  //objects.get(4).transform.collider.isStatic = true;
+  //objects.get(4).transform.collider.isTrigger = true;
   
   op = new Opponent(new Shape2D(230,  15 + MARGIN,  100,    30, Collider2D.Rectangle), ball.gameObject, 2);
   
@@ -60,17 +62,32 @@ void draw(){
     sd.drawQuad(tempObj.transform.vertexTransform, tempObj.transform.translatePos(toroidalPos));
     
   }*/
+
+  
   
   player.update();
   op.update();
   ch.handleCollisions(objects);
   sd.updateAll(objects); 
   sd.drawAll(objects);
+
+  fill(255, 255, 255);
+  textSize(25);
+  text("Lives: " + player.lives, 20, 40);
+  text("Score: " + score, 20, 70);
+  if (ball.gameObject.transform.pos.y >= 750 && player.lives == previousLives){
+    player.lives--;
+  }
+  else if(ball.gameObject.transform.pos.y <= -15 && score == previousScore){
+    score++;
+  }
 }
 
 void mousePressed(){
 
   ball.reset();
+  previousLives = player.lives;
+  previousScore = score;
     /*if(objects.get(0).rb.angularVelocity == 0.2){
         objects.get(0).rb.angularVelocity = 0;
     }
