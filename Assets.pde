@@ -41,12 +41,12 @@ class Opponent{
     float speed;
     int index;
     Shape2D gameObject;
-    Shape2D ballGameObj;
+    ArrayList<Ball> circles;
     Mathf mathf = new Mathf();
 
-    public Opponent(Shape2D obj, Shape2D ball, float speed){
+    public Opponent(Shape2D obj, ArrayList<Ball> circles, float speed){
         this.gameObject = obj;
-        this.ballGameObj = ball;
+        this.circles = circles;
         this.speed = speed;
         this.index = objects.size();
         objects.add(this.gameObject);
@@ -56,13 +56,31 @@ class Opponent{
     }
 
     public void update(){
+        
         this.gameObject.transform.pos.x += this.speed*
-                this.gameObject.rb.checkSign(ballGameObj.transform.pos.x - this.gameObject.transform.pos.x);
+                this.gameObject.rb.checkSign(this.findClosest() - this.gameObject.transform.pos.x);
         this.gameObject.transform.pos = new Vector2D(mathf.clamp(
             this.gameObject.transform.pos.x, 
             this.gameObject.transform.size.x / 2, width - (this.gameObject.transform.size.x / 2)),
             (MARGIN + this.gameObject.transform.size.y / 2));
         this.gameObject.transform.translatePos();
+    }
+    
+    public float findClosest(){
+        if (circles.isEmpty()) return width/2;
+        Ball closest = this.circles.get(0);
+        
+        for (int i = 0; i< this.circles.size(); i++){
+            Ball b = this.circles.get(i);
+            if (closest.gameObject.transform.pos.y < 0 && b.gameObject.transform.pos.y > 0){
+                closest = b;
+            }
+            if (b.gameObject.transform.pos.y < closest.gameObject.transform.pos.y && b.gameObject.transform.pos.y > 0){
+                closest = b;
+            }
+        }
+        
+        return closest.gameObject.transform.pos.x;
     }
 
 }
@@ -74,16 +92,17 @@ class Ball{
     Shape2D gameObject;
     Mathf mathf = new Mathf();
 
-    public Ball(Shape2D obj, float speed){
+    public Ball(Shape2D obj, float speed, ArrayList<Shape2D> objectList){
         this.gameObject = obj;
         this.speed = speed;
-        this.index = objects.size();
-        objects.add(this.gameObject);
+        
         this.gameObject.setColor(255, 255, 255);
         float tmpNum = random((float) Math.PI * 2);
         this.gameObject.rb.velocity = new Vector2D((float) Math.cos(tmpNum) * speed, (float) Math.sin(tmpNum) * speed);
         this.gameObject.transform.collider.isStatic = false;
         this.gameObject.wrapAround = false;
+        this.index = objects.size();
+        objectList.add(this.gameObject);
     }
 
     public void update(){
@@ -96,5 +115,55 @@ class Ball{
         this.gameObject.rb.velocity = new Vector2D((float) Math.cos(tmpNum) * speed, (float) Math.sin(tmpNum) * speed);
         this.gameObject.transform.translatePos();
     }
+    
+    public void increaseSpeed(){
+        this.gameObject.rb.velocity.vectorSum(new Vector2D(1 * mathf.checkSign(this.gameObject.rb.velocity.x), 1 * mathf.checkSign(this.gameObject.rb.velocity.y)));
+    }
 
+    public void destroy(){
+        int indexInCircles = this.index - (objects.size() - circles.size());
+        for (int i = 0; i < circles.size(); i++){
+            if (i > indexInCircles){
+                circles.get(i).index--;
+            }
+        }
+        circles.remove(indexInCircles);
+        objects.remove(this.index);
+
+    }
+
+}
+
+class Timer{
+    int time = 0;
+    int totalTime;
+    boolean started = false;
+    
+    public Timer(int timer){
+        this.time = timer;
+        this.totalTime = timer;
+        this.started = false;
+    }
+    
+    public boolean updateTime(){
+        if (this.started == false) {return true;}
+        this.time--;
+        if (this.time <= 0){
+            this.started = false;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    public void startTimer(){
+        this.started = true;
+        this.time = this.totalTime;
+    }
+    
+}
+
+class BooleanB{
+    public boolean value = false;
 }

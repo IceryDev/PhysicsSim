@@ -150,4 +150,14 @@ class Mathf{
     public float deg2Rad(float degrees){
         return ( 2 * (float) Math.PI * degrees) / 360;
     }
+    
+    public int checkSign(float x){
+        if (x > 0) { return 1; }
+        else if (x < 0) { return -1; }
+        else { return 0; }
+    }
+
+    public int randInt(int range){
+        return (int) Math.random() * range;
+    }
 }

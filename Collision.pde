@@ -38,8 +38,8 @@ class CollisionHandler{
             if ((isStaticA && isStaticB)) {continue;}
             
             if (!isStaticA){ correction = (isStaticB) ? -1 : -0.5; }
-            objA.pos.vectorSum(c.collisionAxis.copy().scalarMul((correction + 1) * c.collisionDepth));
-            objB.pos.vectorSum(c.collisionAxis.copy().scalarMul((correction) * c.collisionDepth));
+            objA.pos.vectorSum(c.collisionAxis.copy().scalarMul((correction+1) * c.collisionDepth * 1.005));
+            objB.pos.vectorSum(c.collisionAxis.copy().scalarMul((correction) * c.collisionDepth * 1.005));
             
             objA.translatePos();
             objB.translatePos();
