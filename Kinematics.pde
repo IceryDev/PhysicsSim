@@ -31,7 +31,7 @@ class Rigidbody2D {
     }
     
     public void applyImpulse(Force2D force, Collision2D collision){
-        if (collision.applied == true) return;
+        if (collision.applied == true || this.transform.collider.isStatic) return;
         this.velocity.x += ((force.x) / this.mass);
         this.velocity.y += ((force.y) / this.mass);
     }
