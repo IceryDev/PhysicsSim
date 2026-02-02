@@ -1,4 +1,6 @@
-
+ArrayList<Shape2D> objects = new ArrayList<>();
+CollisionHandler ch;
+ShapeDrawer sd;
 Mathf mathf = new Mathf();
 
 class Timer{

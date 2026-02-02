@@ -18,6 +18,9 @@ class Shape2D {
     
     //Wrap Around Motion
     public boolean wrapAround = false; //Currently only works with quads and circles
+
+    //GameObject Properties
+    public int index;
     
     public Shape2D(float posX, float posY, float sizeX, float sizeY, Collider2D collider){
         this.transform = new Transform(new Vector2D(posX, posY), collider, this);
@@ -54,6 +57,10 @@ class Shape2D {
     public Matrix points(){
         return this.transform.vertexTransform;
     }
+
+    public Matrix imagePoints(){
+        return this.sr.vertices;
+    }
     
     public void changeColor(int spdR, int spdG, int spdB){
         int[] spdRGB = {spdR, spdG, spdB};
@@ -85,10 +92,10 @@ class ShapeDrawer{
                 float imgW = shape.sr.img.width;
                 beginShape(QUADS);
                 texture(shape.sr.img);
-                vertex(shape.points().getVal(0, 0), shape.points().getVal(1, 0), imgW, imgH);
-                vertex(shape.points().getVal(0, 1), shape.points().getVal(1, 1), imgW, 0);
-                vertex(shape.points().getVal(0, 2), shape.points().getVal(1, 2), 0, 0);
-                vertex(shape.points().getVal(0, 3), shape.points().getVal(1, 3), 0, imgH);
+                vertex(shape.imagePoints().getVal(0, 0), shape.imagePoints().getVal(1, 0), imgW, imgH);
+                vertex(shape.imagePoints().getVal(0, 1), shape.imagePoints().getVal(1, 1), imgW, 0);
+                vertex(shape.imagePoints().getVal(0, 2), shape.imagePoints().getVal(1, 2), 0, 0);
+                vertex(shape.imagePoints().getVal(0, 3), shape.imagePoints().getVal(1, 3), 0, imgH);
                 endShape();
             }
             else{

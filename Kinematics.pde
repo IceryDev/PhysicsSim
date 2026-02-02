@@ -74,11 +74,11 @@ enum Collider2D{
     }
 
     public int collisionChange(){
-        if (isColliding == wasColliding){
+        if (this.isColliding == this.wasColliding){
             return 0;
         }
         else {
-            return ((isColliding) ? 1 : 0);
+            return ((this.isColliding) ? 1 : 0);
         }
     }
     
