@@ -11,27 +11,27 @@ class Shape2D {
     public SpriteRenderer sr;
     
     //Shape Properties
-    public int[] colr = {0, 0, 0};
+    public int[] colr = {255, 255, 255};
     
     //Color Change
     private boolean[] colorChangeMode = {true, true, true}; //true/false -> increase/decrease, {R, G, B}
     
     //Wrap Around Motion
-    public boolean wrapAround = false;
+    public boolean wrapAround = false; //Currently only works with quads and circles
     
-    public Shape2D(Vector2D pos, Vector2D size, Collider2D collider){
-        this.transform = new Transform(pos, collider, this);
+    public Shape2D(float posX, float posY, float sizeX, float sizeY, Collider2D collider){
+        this.transform = new Transform(new Vector2D(posX, posY), collider, this);
         this.rb = new Rigidbody2D(this.transform);
         
-        this.transform.setVertex(size);
+        this.transform.setVertex(new Vector2D(sizeX, sizeY));
     }
 
-    public Shape2D(Vector2D pos, Vector2D size, Collider2D collider, PImage img, Vector2D imgSize){
-        this.transform = new Transform(pos, collider, this);
+    public Shape2D(float posX, float posY, float sizeX, float sizeY, Collider2D collider, PImage img, float imgSizeX, float imgSizeY){
+        this.transform = new Transform(new Vector2D(posX, posY), collider, this);
         this.rb = new Rigidbody2D(this.transform);
         
-        this.transform.setVertex(size);
-        this.sr = new SpriteRenderer(this.transform, img, imgSize);
+        this.transform.setVertex(new Vector2D(sizeX, sizeY));
+        this.sr = new SpriteRenderer(this.transform, img, new Vector2D(imgSizeX, imgSizeY));
     }
     
     public void setColor(int red, int blue, int green){
@@ -80,12 +80,25 @@ class ShapeDrawer{
 
     public void drawAll(ArrayList<Shape2D> obj){
         for (Shape2D shape : obj){
-            if (shape.transform.collider == Collider2D.Circle){
-                drawCircle(shape);
+            if (shape.transform.imgAttached){
+                float imgH = shape.sr.img.height;
+                float imgW = shape.sr.img.width;
+                beginShape(QUADS);
+                texture(shape.sr.img);
+                vertex(shape.points().getVal(0, 0), shape.points().getVal(1, 0), imgW, imgH);
+                vertex(shape.points().getVal(0, 1), shape.points().getVal(1, 1), imgW, 0);
+                vertex(shape.points().getVal(0, 2), shape.points().getVal(1, 2), 0, 0);
+                vertex(shape.points().getVal(0, 3), shape.points().getVal(1, 3), 0, imgH);
+                endShape();
             }
-            else if (shape.transform.vertexTransform.columns == 4){
-                if (shape.wrapAround){drawQuad(shape, shape.transform.translatePos(shape.rb.getToroidalPos()));}
-                else {drawQuad(shape);}
+            else{
+                if (shape.transform.collider == Collider2D.Circle){
+                    drawCircle(shape);
+                }
+                else if (shape.transform.vertexTransform.columns == 4){
+                    if (shape.wrapAround){drawQuad(shape, shape.transform.translatePos(shape.rb.getToroidalPos()));}
+                    else {drawQuad(shape);}
+                }
             }
         }
     }
