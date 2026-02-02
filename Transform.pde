@@ -11,6 +11,8 @@ class Transform{
     
     public Vector2D size;
     public Collider2D collider;
+
+    public boolean imgAttached = false;
     
     public Transform(Vector2D pos, Collider2D collider, Shape2D parent){
         this.pos = pos;
@@ -92,6 +94,8 @@ class Transform{
             this.vertexTransform.setVal(0, i, this.distances.getVal(0, i) + this.pos.x);
             this.vertexTransform.setVal(1, i, this.distances.getVal(1, i) + this.pos.y);
         }
+
+        if (this.imgAttached){ this.parent.sr.translatePos(); }
     }
     
     public Matrix translatePos(Vector2D toroidalPos){
@@ -108,6 +112,10 @@ class Transform{
         this.currentRot = (this.currentRot + rotInRad) % ((float) Math.PI * 2);
         this.createRotMatrix();
         this.distances = this.rotMatrix.matMul(this.distances);
+        if (this.imgAttached) {
+            this.parent.sr.rotateVertices();
+            this.parent.sr.translatePos();
+        }
         if (this.edgeNormals != null) { this.edgeNormals = this.rotMatrix.matMul(this.edgeNormals); }
         this.translatePos();
     }

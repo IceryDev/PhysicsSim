@@ -1,4 +1,4 @@
-ArrayList<Shape2D> objects = new ArrayList<>();
+
 Mathf mathf = new Mathf();
 
 class Timer{

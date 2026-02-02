@@ -6,6 +6,9 @@ class Shape2D {
     //Kinematics
     public Rigidbody2D rb;
     public Transform transform;
+
+    //Image
+    public SpriteRenderer sr;
     
     //Shape Properties
     public int[] colr = {0, 0, 0};
@@ -16,11 +19,19 @@ class Shape2D {
     //Wrap Around Motion
     public boolean wrapAround = false;
     
-    public Shape2D(float posX, float posY, float sizeX, float sizeY, Collider2D collider){
-        this.transform = new Transform(new Vector2D(posX, posY), collider, this);
+    public Shape2D(Vector2D pos, Vector2D size, Collider2D collider){
+        this.transform = new Transform(pos, collider, this);
         this.rb = new Rigidbody2D(this.transform);
         
-        this.transform.setVertex(new Vector2D(sizeX, sizeY));
+        this.transform.setVertex(size);
+    }
+
+    public Shape2D(Vector2D pos, Vector2D size, Collider2D collider, PImage img, Vector2D imgSize){
+        this.transform = new Transform(pos, collider, this);
+        this.rb = new Rigidbody2D(this.transform);
+        
+        this.transform.setVertex(size);
+        this.sr = new SpriteRenderer(this.transform, img, imgSize);
     }
     
     public void setColor(int red, int blue, int green){
