@@ -5,7 +5,7 @@ class CollisionHandler{
     public void handleCollisions(ArrayList<Shape2D> objects){
         if (objects.size() < 2) { return; }
         
-        for (int i = 0; i < objects.size(); i++){ //Change this it won't work for multiple objects
+        for (int i = 0; i < objects.size(); i++){
             for (int j = i + 1; j < objects.size(); j++){
                 Collision2D tmp = getCollision(objects.get(i).transform, objects.get(j).transform);
                 if (tmp != null){
@@ -35,10 +35,10 @@ class CollisionHandler{
             boolean isStaticA = objA.collider.isStatic;
             boolean isStaticB = objB.collider.isStatic;
             
-            if ((isStaticA && isStaticB)) {continue;}
+            if ((isStaticA && isStaticB) || (objA.collider.isTrigger || objB.collider.isTrigger)) {continue;}
             
-            if (!isStaticA){ correction = (isStaticB) ? -1 : -0.5; }
-            if (!isStaticA){ objA.pos.vectorSum(c.collisionAxis.copy().scalarMul((correction+1) * c.collisionDepth)); }
+            if (!isStaticA){ correction = (isStaticB) ? -0.5 : -0.25; }
+            if (!isStaticA){ objA.pos.vectorSum(c.collisionAxis.copy().scalarMul((correction+0.5) * c.collisionDepth)); }
             if (!isStaticB){ objB.pos.vectorSum(c.collisionAxis.copy().scalarMul((correction) * c.collisionDepth)); }
             
             objA.translatePos();
@@ -142,6 +142,5 @@ class Collision2D{
         
         this.collidedObjects[0] = objA;
         this.collidedObjects[1] = objB;
-        
     }
 }

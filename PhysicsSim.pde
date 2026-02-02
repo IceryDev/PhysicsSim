@@ -8,7 +8,6 @@ final int WIN_SCORE = LIVES;
 final float BALL_SPEED = 5;
 final float OP_SPEED = 2;
 
-ArrayList<Shape2D> objects = new ArrayList<>();
 ArrayList<Ball> circles = new ArrayList<>();
 int previousLives = LIVES;
 int score = 0;
@@ -23,9 +22,6 @@ Timer difficultyTimer = new Timer(500);
 CollisionHandler ch;
 Player player;
 Opponent op;
-Mathf mathf = new Mathf();
-
-
 
 void setup(){
   size(720, 720);
@@ -57,20 +53,6 @@ void draw(){
   if(gameRunning){
        difficultyChange = difficultyTimer.updateTime();
   }
-  
-  /*for (int sqrNo = 0; sqrNo < 2; sqrNo++){
-    Shape2D tempObj = objects.get(sqrNo);
-    tempObj.changeColor(colorIncrementVal[0], colorIncrementVal[1], colorIncrementVal[2]);
-    
-    fill(tempObj.colr[0], tempObj.colr[1], tempObj.colr[2]);
-    
-    tempObj.rb.velocity.y += (initialY[sqrNo] - tempObj.transform.pos.y)/100;
-    tempObj.update();
-    Vector2D toroidalPos = tempObj.rb.getToroidalPos();
-    
-    sd.drawQuad(tempObj.transform.vertexTransform, tempObj.transform.translatePos(toroidalPos));
-    
-  }*/
 
   if (keyPressed){
     if ((key == 'r' || key == 'R') && gameRunning == false){
@@ -83,9 +65,9 @@ void draw(){
         keyPressTimer.startTimer();
     }
 
-    if ((key == 'n' || key == 'N') && keyPressAvailable){
+    if ((key == 'n' || key == 'N') /*&& keyPressAvailable*/){
         circles.add(new Ball(new Shape2D(360, 360, 25, 25, Collider2D.Circle), 5, objects));
-        keyPressTimer.startTimer();
+        //keyPressTimer.startTimer();
     }
   }
   

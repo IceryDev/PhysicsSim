@@ -59,6 +59,7 @@ enum Collider2D{
     public boolean isStatic = false;
     public boolean isTrigger = false;
     public boolean isColliding = false;
+    public boolean wasColliding = isColliding;
     
     private float cor = 1; //Coefficient of Restitution -> 1 : Elastic, 0 : Inelastic
     
@@ -70,6 +71,15 @@ enum Collider2D{
     
     public float getCor(){
         return this.cor;
+    }
+
+    public int collisionChange(){
+        if (isColliding == wasColliding){
+            return 0;
+        }
+        else {
+            return ((isColliding) ? 1 : 0);
+        }
     }
     
     
