@@ -3,6 +3,34 @@ CollisionHandler ch;
 ShapeDrawer sd;
 Mathf mathf = new Mathf();
 
+class GameObject{
+    Shape2D gameObject;
+
+    public GameObject(Shape2D obj){
+        this.gameObject = obj;
+    }
+
+    public void update(){
+        
+    }
+
+    public void onTriggerEnter(){
+
+    }
+
+    public void onTriggerExit(){
+
+    }
+
+    public void onCollisionEnter(){
+
+    }
+
+    public void onCollisionExit(){
+
+    }
+}
+
 class Timer{
     int time = 0;
     int totalTime;

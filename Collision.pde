@@ -1,6 +1,7 @@
 class CollisionHandler{
   
-    ArrayList<Collision2D> collisions = new ArrayList<>();
+    HashSet<Collision2D> collisions = new HashSet<>();
+    HashSet<Collision2D> prevCollisions = new HashSet<>();
     
     public void handleCollisions(ArrayList<Shape2D> objects){
         if (objects.size() < 2) { return; }
@@ -21,6 +22,8 @@ class CollisionHandler{
         }
         
         calculateResults();
+        prevCollisions.clear();
+        prevCollisions.addAll(collisions);
         collisions.clear();
         
     }

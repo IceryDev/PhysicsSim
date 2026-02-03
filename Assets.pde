@@ -1,26 +1,13 @@
-class GameObject{
-    // This exists just to be able to put all objects into the same list
-
-    public void update(){
-        
-    }
-
-    public void onTriggerEnter(){
-
-    }
-}
-
 class Player extends GameObject{
 
     int lives;
     float speed = 3;
-    Shape2D gameObject;
     Timer shootCooldown = new Timer(50);
     boolean isShooting = false;
     Mathf mathf = new Mathf();
 
     public Player(Shape2D obj, int lives){
-        this.gameObject = obj;
+        super(obj);
         this.lives = lives;
         this.gameObject.index = objects.size();
         gameObjects.add(this);
@@ -56,11 +43,10 @@ class Player extends GameObject{
 
 class PlayerBullet extends GameObject{
     int damage = 1;
-    Shape2D gameObject;
     float speed = 6;
 
     public PlayerBullet(Shape2D obj){
-        this.gameObject = obj;
+        super(obj);
         this.gameObject.index = objects.size();
         this.gameObject.transform.collider.isTrigger = true;
         this.gameObject.rb.velocity.y = -this.speed;
@@ -100,11 +86,10 @@ class Alien extends GameObject{
     int deathAnimFrame = -1;
     Timer frameIncrement = new Timer(5);
 
-    Shape2D gameObject;
     Mathf mathf = new Mathf();
 
     public Alien(Shape2D obj){
-        this.gameObject = obj;
+        super(obj);
         this.targetY = obj.transform.pos.y + (obj.transform.size.y + GAP);
         this.gameObject.index = objects.size();
         gameObjects.add(this);
