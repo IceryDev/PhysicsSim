@@ -78,7 +78,7 @@ enum Collider2D{
             return 0;
         }
         else {
-            return ((this.isColliding) ? 1 : 0);
+            return ((this.isColliding) ? 1 : -1);
         }
     }
     

@@ -20,6 +20,7 @@ class Shape2D {
     public boolean wrapAround = false; //Currently only works with quads and circles
 
     //GameObject Properties
+    public GameObject gameObject;
     public int index;
     
     public Shape2D(float posX, float posY, float sizeX, float sizeY, Collider2D collider){

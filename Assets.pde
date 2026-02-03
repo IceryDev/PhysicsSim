@@ -4,12 +4,19 @@ class GameObject{
     public void update(){
         
     }
+
+    public void onTriggerEnter(){
+
+    }
 }
 
 class Player extends GameObject{
 
     int lives;
+    float speed = 3;
     Shape2D gameObject;
+    Timer shootCooldown = new Timer(50);
+    boolean isShooting = false;
     Mathf mathf = new Mathf();
 
     public Player(Shape2D obj, int lives){
@@ -18,30 +25,64 @@ class Player extends GameObject{
         this.gameObject.index = objects.size();
         gameObjects.add(this);
         objects.add(this.gameObject);
-        this.gameObject.setColor(0, 255, 0);
-        this.gameObject.transform.collider.isStatic = true;
-        this.gameObject.wrapAround = false;
     }
 
     public void update(){
+        if (keys[0]) {
+            this.gameObject.transform.pos.x += this.speed;
+        }
+        if (keys[1]) {
+            this.gameObject.transform.pos.x -= this.speed;
+        }
+        boolean shootAvailable = this.shootCooldown.updateTime();
+        if (keys[2] && shootAvailable) {
+            this.shoot();
+            this.shootCooldown.startTimer();
+        }
+
         this.gameObject.transform.pos = new Vector2D(mathf.clamp(
-            mouseX, this.gameObject.transform.size.x / 2, width - (this.gameObject.transform.size.x / 2)),
+            this.gameObject.transform.pos.x, this.gameObject.transform.size.x / 2, width - (this.gameObject.transform.size.x / 2)),
                                                   height - (MARGIN + this.gameObject.transform.size.y / 2));
         this.gameObject.transform.translatePos();
-        if (keyPressed) {
-            if (key == 'd' || key == 'D') {
-                this.gameObject.transform.setRotation(mathf.deg2Rad(20));
-            }
-            else if(key == 'a' || key == 'A') {
-                this.gameObject.transform.setRotation(mathf.deg2Rad(-20));
-            }
-            
-        }
-        else {
-            this.gameObject.transform.setRotation(mathf.deg2Rad(0));    
+    }
+
+    public void shoot(){
+        PlayerBullet pb = new PlayerBullet(new Shape2D(
+            this.gameObject.transform.pos.x, this.gameObject.transform.pos.y, 32, 32, Collider2D.Square, playerBullet, 128, 128));
+        
+    }
+
+}
+
+class PlayerBullet extends GameObject{
+    int damage = 1;
+    Shape2D gameObject;
+    float speed = 6;
+
+    public PlayerBullet(Shape2D obj){
+        this.gameObject = obj;
+        this.gameObject.index = objects.size();
+        this.gameObject.transform.collider.isTrigger = true;
+        this.gameObject.rb.velocity.y = -this.speed;
+        gameObjects.add(this);
+        objects.add(this.gameObject);
+    }
+
+    public void update(){
+        if (this.gameObject.transform.pos.y < 0){
+            this.destroy();
         }
     }
 
+    public void destroy(){
+        for (int i = 0; i < objects.size(); i++){
+            if (i > this.gameObject.index){
+                objects.get(i).index--;
+            }
+        }
+        objects.remove(this.gameObject.index);
+        gameObjects.remove(this.gameObject.index);
+    }
 }
 
 class Alien extends GameObject{
@@ -55,8 +96,9 @@ class Alien extends GameObject{
     float speed = 2;
     int direction = 1; //-1/1 -> left/right
 
-    PImage[] deathAnim;
+    PImage[] deathAnim = deathSprites;
     int deathAnimFrame = -1;
+    Timer frameIncrement = new Timer(5);
 
     Shape2D gameObject;
     Mathf mathf = new Mathf();
@@ -64,13 +106,24 @@ class Alien extends GameObject{
     public Alien(Shape2D obj){
         this.gameObject = obj;
         this.targetY = obj.transform.pos.y + (obj.transform.size.y + GAP);
-        System.out.println(this.targetY);
         this.gameObject.index = objects.size();
         gameObjects.add(this);
         objects.add(this.gameObject);
     }
 
     public void update(){
+        if (this.isDead){
+            if(this.deathAnimFrame != -1){
+                this.playDeathAnim();
+            }
+            else{
+                this.gameObject.transform.collider.isTrigger = true;
+                this.deathAnimFrame++;
+                this.playDeathAnim();
+                this.frameIncrement.startTimer();
+            }
+            return;
+        }
         if (this.health <= 0) { this.isDead = true; }
 
         this.move();
@@ -83,22 +136,21 @@ class Alien extends GameObject{
         else if (this.movingOnAxis && (this.targetY - transform.pos.y) < 0.1){
             this.movingOnAxis = !this.movingOnAxis;
             this.targetY = transform.pos.y + (transform.size.y + GAP);
-            System.out.println(this.targetY);
+            //System.out.println(this.targetY);
         }
 
-        if (transform.pos.y > height - 50){this.isDead = true;}
+        if (transform.pos.y > height - 600){this.isDead = true;}
     }
 
     public void move(){
-        if (!movingOnAxis){
+        if (this.isDead) {return;}
+        if (!this.movingOnAxis){
             this.gameObject.transform.pos.x += this.speed * this.direction;
         }
         else{
             this.gameObject.transform.pos.y += this.speed;
         }
     }
-
-
 
     public void destroy(){
         for (int i = 0; i < objects.size(); i++){
@@ -108,6 +160,21 @@ class Alien extends GameObject{
         }
         objects.remove(this.gameObject.index);
         gameObjects.remove(this.gameObject.index);
+    }
+
+    public void playDeathAnim(){
+        boolean updateSprite = this.frameIncrement.updateTime();
+        if (updateSprite){
+            if (this.deathAnimFrame != this.deathAnim.length-1){
+                this.deathAnimFrame++;
+                this.gameObject.sr.img = this.deathAnim[this.deathAnimFrame];
+                this.frameIncrement.startTimer();
+            }
+            else{
+                this.destroy();
+            }
+            
+        }
 
     }
 }

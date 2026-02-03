@@ -6,7 +6,7 @@ Mathf mathf = new Mathf();
 class Timer{
     int time = 0;
     int totalTime;
-    boolean started = false;
+    public boolean started = false;
     
     public Timer(int timer){
         this.time = timer;
