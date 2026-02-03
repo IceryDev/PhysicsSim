@@ -49,19 +49,18 @@ class Rigidbody2D {
     
 }
 
-enum Collider2D{
-    Circle,
-    Square,
-    Rectangle,
-    Polygon;
+class Collider2D{
     
     public boolean enabled = true;
     public boolean isStatic = false;
     public boolean isTrigger = false;
-    public boolean isColliding = false;
-    public boolean wasColliding = isColliding;
+    public ColliderType type;
     
     private float cor = 1; //Coefficient of Restitution -> 1 : Elastic, 0 : Inelastic
+
+    public Collider2D(ColliderType ct){
+        this.type = ct;
+    }
     
     public boolean setCor(float value){
         if (value < 0 || value > 1) { return false; }
@@ -72,17 +71,14 @@ enum Collider2D{
     public float getCor(){
         return this.cor;
     }
+    
+}
 
-    public int collisionChange(){
-        if (this.isColliding == this.wasColliding){
-            return 0;
-        }
-        else {
-            return ((this.isColliding) ? 1 : -1);
-        }
-    }
-    
-    
+enum ColliderType{
+    Circle,
+    Square,
+    Rectangle,
+    Polygon;
 }
 
 class Force2D extends Vector2D{

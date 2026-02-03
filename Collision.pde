@@ -13,12 +13,38 @@ class CollisionHandler{
                     collisions.add(tmp);
                 }
             }
-            objects.get(i).transform.collider.isColliding = false;
         }
         
         for (Collision2D collision : collisions){
-            collision.collidedObjects[0].collider.isColliding = true;
-            collision.collidedObjects[1].collider.isColliding = true;
+            GameObject objA = collision.collidedObjects[0].parent.gameObject;
+            GameObject objB = collision.collidedObjects[1].parent.gameObject;
+            Collider2D colA = collision.collidedObjects[0].collider;
+            Collider2D colB = collision.collidedObjects[1].collider;
+            if (!prevCollisions.contains(collision)){
+                if (colA.isTrigger && colB.isTrigger) { continue; }
+                else if (colA.isTrigger) { objB.onTriggerEnter(objA); }
+                else if (colB.isTrigger) { objA.onTriggerEnter(objB); }
+                else {
+                    objA.onCollisionEnter(objB);
+                    objB.onCollisionEnter(objA);
+                }
+            }
+        }
+
+        for (Collision2D collision : prevCollisions){
+            GameObject objA = collision.collidedObjects[0].parent.gameObject;
+            GameObject objB = collision.collidedObjects[1].parent.gameObject;
+            Collider2D colA = collision.collidedObjects[0].collider;
+            Collider2D colB = collision.collidedObjects[1].collider;
+            if (!collisions.contains(collision)){
+                if (colA.isTrigger && colB.isTrigger) {continue;}
+                else if (colA.isTrigger) { objB.onTriggerExit(objA); }
+                else if (colB.isTrigger) { objA.onTriggerExit(objB); }
+                else {
+                    objA.onCollisionExit(objB);
+                    objB.onCollisionExit(objA);
+                }
+            }
         }
         
         calculateResults();
@@ -68,8 +94,8 @@ class CollisionHandler{
         Vector2D collisionAxis = null;
         float min = Float.MAX_VALUE;
         
-        boolean isPolyA = (objA.collider != Collider2D.Circle);
-        boolean isPolyB = (objB.collider != Collider2D.Circle);
+        boolean isPolyA = (objA.collider.type != ColliderType.Circle);
+        boolean isPolyB = (objB.collider.type != ColliderType.Circle);
         
         int colsA = (isPolyA) ? objA.edgeNormals.columns : 0;
         int colsB = (isPolyB) ? objB.edgeNormals.columns : 0;
@@ -145,5 +171,20 @@ class Collision2D{
         
         this.collidedObjects[0] = objA;
         this.collidedObjects[1] = objB;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Collision2D)) return false;
+        Collision2D other = (Collision2D)o;
+
+        return (collidedObjects[0] == other.collidedObjects[0] && collidedObjects[1] == other.collidedObjects[1]) ||
+               (collidedObjects[0] == other.collidedObjects[1] && collidedObjects[1] == other.collidedObjects[0]);
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(collidedObjects[0]) ^
+               System.identityHashCode(collidedObjects[1]);
     }
 }

@@ -22,14 +22,14 @@ class Transform{
     }
     
     public void setVertex(Vector2D size){
-        if (this.collider == Collider2D.Polygon) {
+        if (this.collider.type == ColliderType.Polygon) {
             System.err.println("No vertex information provided for Polygon Collider, setting it to Rectangle...");
-            this.collider = Collider2D.Rectangle;
+            this.collider.type = ColliderType.Rectangle;
         }
         
         
         this.size = size;
-        switch (this.collider){
+        switch (this.collider.type){
             case Circle:
                 this.initialVertexPos.add(new Vector2D(this.pos.x, this.pos.y));
                 break;
@@ -57,7 +57,7 @@ class Transform{
     }
     
     private void createEdgeNormals(){
-        if (this.collider == Collider2D.Circle){ return; } //If the collider is a circle then there are infinite normals, so the edge normals remain null
+        if (this.collider.type == ColliderType.Circle){ return; } //If the collider is a circle then there are infinite normals, so the edge normals remain null
         
         Matrix normals = new Matrix(this.vertexTransform.rows, this.vertexTransform.columns);
         Vector2D temp = new Vector2D(this.vertexTransform.getVal(0, 0) - this.vertexTransform.getVal(0, this.vertexTransform.columns - 1),

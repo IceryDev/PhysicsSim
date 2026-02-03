@@ -1,33 +1,40 @@
-ArrayList<Shape2D> objects = new ArrayList<>();
+ArrayList<Shape2D> objects = new ArrayList<>(); //Stores all the shapes
+ArrayList<GameObject> gameObjects = new ArrayList<>(); //Stores all the objects
 CollisionHandler ch;
 ShapeDrawer sd;
 Mathf mathf = new Mathf();
 
 class GameObject{
-    Shape2D gameObject;
+    Shape2D shape;
+    String tag = "Default";
 
     public GameObject(Shape2D obj){
-        this.gameObject = obj;
+        this.shape = obj;
+        this.shape.gameObject = this;
     }
 
     public void update(){
         
     }
 
-    public void onTriggerEnter(){
+    public void onTriggerEnter(GameObject other){
 
     }
 
-    public void onTriggerExit(){
+    public void onTriggerExit(GameObject other){
 
     }
 
-    public void onCollisionEnter(){
+    public void onCollisionEnter(GameObject other){
 
     }
 
-    public void onCollisionExit(){
+    public void onCollisionExit(GameObject other){
 
+    }
+
+    public void destroy(){
+        
     }
 }
 

@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 
-ArrayList<GameObject> gameObjects = new ArrayList<>();
+
 Timer gameTimer = new Timer(70);
 
 static float MARGIN = 15;
@@ -44,8 +44,8 @@ void setup(){
   sd = new ShapeDrawer();
   gameTimer.startTimer();
 
-  player = new Player(new Shape2D(50, 50, 64, 64, Collider2D.Square, playerSprite, 128, 128), 1);
-  tempAlien = new Alien(new Shape2D(50, 50, 64, 64, Collider2D.Square, alienSprites[1], 128, 128));
+  player = new Player(new Shape2D(50, 50, 64, 64, ColliderType.Square, playerSprite, 128, 128), 1);
+  tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[1], 128, 128));
   //objects.add(new Shape2D(360, 360, 128, 128, Collider2D.Square, alienTexture, 128, 128));
   //objects.get(0).rb.angularVelocity = 0;
 
@@ -58,7 +58,7 @@ void draw(){
   background(0);
   boolean timerTriggered = gameTimer.updateTime();
   if (timerTriggered){
-    tempAlien = new Alien(new Shape2D(50, 50, 64, 64, Collider2D.Square, alienSprites[Math.round(random(0, 2))], 128, 128));
+    tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[Math.round(random(0, 2))], 128, 128));
     gameTimer.startTimer();
   }
 

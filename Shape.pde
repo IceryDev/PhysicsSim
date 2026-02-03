@@ -23,15 +23,15 @@ class Shape2D {
     public GameObject gameObject;
     public int index;
     
-    public Shape2D(float posX, float posY, float sizeX, float sizeY, Collider2D collider){
-        this.transform = new Transform(new Vector2D(posX, posY), collider, this);
+    public Shape2D(float posX, float posY, float sizeX, float sizeY, ColliderType collider){
+        this.transform = new Transform(new Vector2D(posX, posY), new Collider2D(collider), this);
         this.rb = new Rigidbody2D(this.transform);
         
         this.transform.setVertex(new Vector2D(sizeX, sizeY));
     }
 
-    public Shape2D(float posX, float posY, float sizeX, float sizeY, Collider2D collider, PImage img, float imgSizeX, float imgSizeY){
-        this.transform = new Transform(new Vector2D(posX, posY), collider, this);
+    public Shape2D(float posX, float posY, float sizeX, float sizeY, ColliderType collider, PImage img, float imgSizeX, float imgSizeY){
+        this.transform = new Transform(new Vector2D(posX, posY), new Collider2D(collider), this);
         this.rb = new Rigidbody2D(this.transform);
         
         this.transform.setVertex(new Vector2D(sizeX, sizeY));
@@ -100,7 +100,7 @@ class ShapeDrawer{
                 endShape();
             }
             else{
-                if (shape.transform.collider == Collider2D.Circle){
+                if (shape.transform.collider.type == ColliderType.Circle){
                     drawCircle(shape);
                 }
                 else if (shape.transform.vertexTransform.columns == 4){
@@ -112,7 +112,7 @@ class ShapeDrawer{
     }
     
     public void drawCircle(Shape2D obj){
-        if(obj.transform.collider != Collider2D.Circle){
+        if(obj.transform.collider.type != ColliderType.Circle){
             System.err.println("Cannot create a circle without a circle collider!"); return;
         }
         fill(obj.colr[0], obj.colr[1], obj.colr[2]);
@@ -120,7 +120,7 @@ class ShapeDrawer{
     }
     
     public void drawCircle(Shape2D obj, Vector2D toroidalPos){
-        if(obj.transform.collider != Collider2D.Circle){
+        if(obj.transform.collider.type != ColliderType.Circle){
             System.err.println("Cannot create a circle without a circle collider!"); return;
         }
         
