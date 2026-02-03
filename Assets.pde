@@ -56,6 +56,7 @@ class Alien extends GameObject{
     int direction = 1; //-1/1 -> left/right
 
     PImage[] deathAnim;
+    int deathAnimFrame = -1;
 
     Shape2D gameObject;
     Mathf mathf = new Mathf();
@@ -70,6 +71,8 @@ class Alien extends GameObject{
     }
 
     public void update(){
+        if (this.health <= 0) { this.isDead = true; }
+
         this.move();
         Transform transform = this.gameObject.transform;
         if (!this.movingOnAxis && (transform.pos.x + transform.size.x/2 + GAP >= width || transform.pos.x - transform.size.x/2 - GAP <= 0)){
@@ -82,6 +85,8 @@ class Alien extends GameObject{
             this.targetY = transform.pos.y + (transform.size.y + GAP);
             System.out.println(this.targetY);
         }
+
+        if (transform.pos.y > height - 50){this.isDead = true;}
     }
 
     public void move(){
@@ -92,6 +97,8 @@ class Alien extends GameObject{
             this.gameObject.transform.pos.y += this.speed;
         }
     }
+
+
 
     public void destroy(){
         for (int i = 0; i < objects.size(); i++){
