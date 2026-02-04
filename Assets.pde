@@ -4,6 +4,7 @@ class Player extends GameObject{
     float speed = 3;
     Timer shootCooldown = new Timer(50);
     boolean isShooting = false;
+    boolean isAlive = true;
     Mathf mathf = new Mathf();
 
     public Player(Shape2D obj, int lives){
@@ -15,6 +16,8 @@ class Player extends GameObject{
     }
 
     public void update(){
+        if (!isAlive){return;}
+
         if (keys[0]) {
             this.shape.transform.pos.x += this.speed;
         }
@@ -39,10 +42,19 @@ class Player extends GameObject{
         
     }
 
+    @Override
+    public void onTriggerEnter(GameObject other){
+        if (other.tag.equals("AlienBullet")){
+            AlienBullet bullet = (AlienBullet) other;
+            this.lives -= bullet.damage;
+            other.destroy();
+        }
+    }
+
 }
 
 class AlienBullet extends GameObject {
-    int damage = 1;
+    public int damage = 1;
     float speed = 15;
 
     public AlienBullet(Shape2D obj){
@@ -119,7 +131,7 @@ class Alien extends GameObject{
     int deathAnimFrame = -1;
     Timer frameIncrement = new Timer(5);
 
-    Timer shootTimer = new Timer(15);
+    Timer shootTimer = new Timer(50);
 
     Mathf mathf = new Mathf();
 
@@ -148,10 +160,11 @@ class Alien extends GameObject{
         }
         if (this.health <= 0) { this.isDead = true; }
 
-        boolean canShoot = shootTimer.updateTime();
+        boolean canShoot = this.shootTimer.updateTime();
 
         if (canShoot && this.alienType == 1){
             this.shoot();
+            this.shootTimer.totalTime = (int)(Math.random() * 25) + 50;
             this.shootTimer.startTimer();
         }
 
@@ -215,8 +228,9 @@ class Alien extends GameObject{
     @Override
     public void onTriggerEnter(GameObject collided){
         if (collided.tag.equals("Bullet")) {
-            this.health -= 5;
-            collided.destroy();
+            PlayerBullet bullet = (PlayerBullet) collided;
+            this.health -= bullet.damage;
+            bullet.destroy();
         }
     }
 }

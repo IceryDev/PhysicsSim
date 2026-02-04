@@ -13,9 +13,7 @@ class GameObject{
         this.shape.gameObject = this;
     }
 
-    public void update(){
-        
-    }
+    public void update(){}
 
     public void onTriggerEnter(GameObject other){}
 

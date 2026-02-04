@@ -5,8 +5,9 @@ import java.util.HashSet;
 
 
 Timer gameTimer = new Timer(70);
+Timer difficultyTimer = new Timer(100);
 
-static float MARGIN = 15;
+final float MARGIN = 15;
 
 int score = 0;
 PImage[] deathSprites = new PImage[12];
