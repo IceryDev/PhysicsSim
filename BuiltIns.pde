@@ -15,15 +15,23 @@ class GameObject{
 
     public void update(){}
 
+    @SuppressWarnings("unused")
     public void onTriggerEnter(GameObject other){}
 
+    @SuppressWarnings("unused")
     public void onTriggerExit(GameObject other){}
 
+    @SuppressWarnings("unused")
     public void onCollisionEnter(GameObject other){}
 
+    @SuppressWarnings("unused")
     public void onCollisionExit(GameObject other){}
 
     public void destroy(){}
+}
+
+class UIElement{
+    //Functionality to come here. :)
 }
 
 class Timer{
