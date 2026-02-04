@@ -10,6 +10,7 @@ class Player extends GameObject{
     public Player(Shape2D obj, int lives){
         super(obj);
         this.lives = lives;
+        this.tag = "Player";
         this.shape.index = objects.size();
         gameObjects.add(this);
         objects.add(this.shape);
@@ -17,6 +18,11 @@ class Player extends GameObject{
 
     public void update(){
         if (!isAlive){return;}
+
+        if (this.lives <= 0) {
+            isAlive = false;
+            gameOver = true;
+        }
 
         if (keys[0]) {
             this.shape.transform.pos.x += this.speed;
@@ -138,6 +144,7 @@ class Alien extends GameObject{
     public Alien(Shape2D obj, int type){
         super(obj);
         this.alienType = type;
+        this.tag = "Alien";
         this.shootTimer.startTimer();
         this.targetY = obj.transform.pos.y + (obj.transform.size.y + GAP);
         this.shape.index = objects.size();
@@ -162,7 +169,7 @@ class Alien extends GameObject{
 
         boolean canShoot = this.shootTimer.updateTime();
 
-        if (canShoot && this.alienType == 1){
+        if (canShoot && this.alienType == 0){
             this.shoot();
             this.shootTimer.totalTime = (int)(Math.random() * 25) + 50;
             this.shootTimer.startTimer();
@@ -177,11 +184,11 @@ class Alien extends GameObject{
         }
         else if (this.movingOnAxis && (this.targetY - transform.pos.y) < 0.1){
             this.movingOnAxis = !this.movingOnAxis;
-            this.targetY = transform.pos.y + (transform.size.y + GAP);
+            this.targetY = transform.pos.y + (transform.size.y * 2 + GAP);
             //System.out.println(this.targetY);
         }
 
-        if (transform.pos.y > height - 600){this.isDead = true;}
+        if (transform.pos.y > height){this.isDead = true;}
     }
 
     public void shoot(){
@@ -230,7 +237,40 @@ class Alien extends GameObject{
         if (collided.tag.equals("Bullet")) {
             PlayerBullet bullet = (PlayerBullet) collided;
             this.health -= bullet.damage;
+            score++;
             bullet.destroy();
         }
+    }
+
+    @Override
+    public void onCollisionEnter(GameObject other){
+        if (other.tag.equals("Player")){
+            player.lives -= 2;
+            this.isDead = true;
+        }
+    }
+}
+
+class PlayButton extends UIElement{
+    float width;
+    float height;
+
+    Vector2D pos;
+
+    public PlayButton(float posX, float posY, float width, float height){
+        this.height = height;
+        this.width = width;
+        this.pos = new Vector2D(posX, posY);
+    }
+
+    public boolean isClickedOn(){
+        if (mouseX > this.pos.x - this.width/2 && 
+            mouseX < this.pos.x + this.width/2 &&
+            mouseY > this.pos.y - this.height/2 &&
+            mouseY < this.pos.y + this.height/2){
+            
+            return true;
+        }
+        return false;
     }
 }
