@@ -5,14 +5,16 @@ import java.util.HashSet;
 
 
 Timer gameTimer = new Timer(70);
+Timer difficultyTimer = new Timer(100);
 
-static float MARGIN = 15;
+final float MARGIN = 15;
 
 int score = 0;
 PImage[] deathSprites = new PImage[12];
 PImage[] alienSprites = new PImage[3];
 PImage playerSprite;
 PImage playerBullet;
+PImage alienBullet;
 boolean onMenu = true;
 boolean gameOver = false;
 boolean gamePaused = false;
@@ -40,12 +42,13 @@ void setup(){
   alienSprites[2] = loadImage("AlienShip3.png");
   playerSprite = loadImage("Player.png");
   playerBullet = loadImage("BulletPlayer.png");
+  alienBullet = loadImage("Bullet1.png");
   ch = new CollisionHandler();
   sd = new ShapeDrawer();
   gameTimer.startTimer();
 
   player = new Player(new Shape2D(50, 50, 64, 64, ColliderType.Square, playerSprite, 128, 128), 1);
-  tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[1], 128, 128));
+  tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[1], 128, 128), 1);
   //objects.add(new Shape2D(360, 360, 128, 128, Collider2D.Square, alienTexture, 128, 128));
   //objects.get(0).rb.angularVelocity = 0;
 
@@ -58,7 +61,8 @@ void draw(){
   background(0);
   boolean timerTriggered = gameTimer.updateTime();
   if (timerTriggered){
-    tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[Math.round(random(0, 2))], 128, 128));
+    int alienType = Math.round(random(0, 2));
+    tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[alienType], 128, 128), alienType);
     gameTimer.startTimer();
   }
 

@@ -4,6 +4,7 @@ class Player extends GameObject{
     float speed = 3;
     Timer shootCooldown = new Timer(50);
     boolean isShooting = false;
+    boolean isAlive = true;
     Mathf mathf = new Mathf();
 
     public Player(Shape2D obj, int lives){
@@ -15,6 +16,8 @@ class Player extends GameObject{
     }
 
     public void update(){
+        if (!isAlive){return;}
+
         if (keys[0]) {
             this.shape.transform.pos.x += this.speed;
         }
@@ -39,6 +42,46 @@ class Player extends GameObject{
         
     }
 
+    @Override
+    public void onTriggerEnter(GameObject other){
+        if (other.tag.equals("AlienBullet")){
+            AlienBullet bullet = (AlienBullet) other;
+            this.lives -= bullet.damage;
+            other.destroy();
+        }
+    }
+
+}
+
+class AlienBullet extends GameObject {
+    public int damage = 1;
+    float speed = 15;
+
+    public AlienBullet(Shape2D obj){
+        super(obj);
+        this.shape.index = objects.size();
+        this.tag = "AlienBullet";
+        this.shape.transform.collider.isTrigger = true;
+        this.shape.rb.velocity.y = this.speed;
+        gameObjects.add(this);
+        objects.add(this.shape);
+    }
+
+    public void update(){
+        if (this.shape.transform.pos.y > height){
+            this.destroy();
+        }
+    }
+
+    public void destroy(){
+        for (int i = 0; i < objects.size(); i++){
+            if (i > this.shape.index){
+                objects.get(i).index--;
+            }
+        }
+        objects.remove(this.shape.index);
+        gameObjects.remove(this.shape.index);
+    }
 }
 
 class PlayerBullet extends GameObject{
@@ -77,6 +120,7 @@ class Alien extends GameObject{
     final float GAP = 15;
 
     int health = 1;
+    int alienType = 0;
     boolean movingOnAxis = false; //false/true -> x/y
     boolean isDead = false;
     float targetY;
@@ -87,10 +131,14 @@ class Alien extends GameObject{
     int deathAnimFrame = -1;
     Timer frameIncrement = new Timer(5);
 
+    Timer shootTimer = new Timer(50);
+
     Mathf mathf = new Mathf();
 
-    public Alien(Shape2D obj){
+    public Alien(Shape2D obj, int type){
         super(obj);
+        this.alienType = type;
+        this.shootTimer.startTimer();
         this.targetY = obj.transform.pos.y + (obj.transform.size.y + GAP);
         this.shape.index = objects.size();
         gameObjects.add(this);
@@ -112,6 +160,14 @@ class Alien extends GameObject{
         }
         if (this.health <= 0) { this.isDead = true; }
 
+        boolean canShoot = this.shootTimer.updateTime();
+
+        if (canShoot && this.alienType == 1){
+            this.shoot();
+            this.shootTimer.totalTime = (int)(Math.random() * 25) + 50;
+            this.shootTimer.startTimer();
+        }
+
         this.move();
         Transform transform = this.shape.transform;
         if (!this.movingOnAxis && (transform.pos.x + transform.size.x/2 + GAP >= width || transform.pos.x - transform.size.x/2 - GAP <= 0)){
@@ -126,6 +182,11 @@ class Alien extends GameObject{
         }
 
         if (transform.pos.y > height - 600){this.isDead = true;}
+    }
+
+    public void shoot(){
+        AlienBullet pb = new AlienBullet(new Shape2D(
+            this.shape.transform.pos.x, this.shape.transform.pos.y, 32, 32, ColliderType.Square, alienBullet, 128, 128));
     }
 
     public void move(){
@@ -167,8 +228,9 @@ class Alien extends GameObject{
     @Override
     public void onTriggerEnter(GameObject collided){
         if (collided.tag.equals("Bullet")) {
-            this.health -= 5;
-            collided.destroy();
+            PlayerBullet bullet = (PlayerBullet) collided;
+            this.health -= bullet.damage;
+            bullet.destroy();
         }
     }
 }
