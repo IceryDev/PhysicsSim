@@ -17,25 +17,15 @@ class GameObject{
         
     }
 
-    public void onTriggerEnter(GameObject other){
+    public void onTriggerEnter(GameObject other){}
 
-    }
+    public void onTriggerExit(GameObject other){}
 
-    public void onTriggerExit(GameObject other){
+    public void onCollisionEnter(GameObject other){}
 
-    }
+    public void onCollisionExit(GameObject other){}
 
-    public void onCollisionEnter(GameObject other){
-
-    }
-
-    public void onCollisionExit(GameObject other){
-
-    }
-
-    public void destroy(){
-        
-    }
+    public void destroy(){}
 }
 
 class Timer{
