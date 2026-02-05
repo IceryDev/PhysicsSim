@@ -11,6 +11,9 @@ class GameObject{
     public GameObject(Shape2D obj){
         this.shape = obj;
         this.shape.gameObject = this;
+        this.shape.index = objects.size();
+        gameObjects.add(this);
+        objects.add(this.shape);
     }
 
     public void update(){}
@@ -27,7 +30,15 @@ class GameObject{
     @SuppressWarnings("unused")
     public void onCollisionExit(GameObject other){}
 
-    public void destroy(){}
+    public void destroy(){
+        for (int i = 0; i < objects.size(); i++){
+            if (i > this.shape.index){
+                objects.get(i).index--;
+            }
+        }
+        objects.remove(this.shape.index);
+        gameObjects.remove(this.shape.index);
+    }
 }
 
 class UIElement{

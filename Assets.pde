@@ -11,9 +11,6 @@ class Player extends GameObject{
         super(obj);
         this.lives = lives;
         this.tag = "Player";
-        this.shape.index = objects.size();
-        gameObjects.add(this);
-        objects.add(this.shape);
     }
 
     public void update(){
@@ -65,12 +62,11 @@ class AlienBullet extends GameObject {
 
     public AlienBullet(Shape2D obj){
         super(obj);
-        this.shape.index = objects.size();
+        
         this.tag = "AlienBullet";
         this.shape.transform.collider.isTrigger = true;
         this.shape.rb.velocity.y = this.speed;
-        gameObjects.add(this);
-        objects.add(this.shape);
+        
     }
 
     public void update(){
@@ -96,12 +92,11 @@ class PlayerBullet extends GameObject{
 
     public PlayerBullet(Shape2D obj){
         super(obj);
-        this.shape.index = objects.size();
+        
         this.tag = "Bullet";
         this.shape.transform.collider.isTrigger = true;
         this.shape.rb.velocity.y = -this.speed;
-        gameObjects.add(this);
-        objects.add(this.shape);
+        
     }
 
     public void update(){
@@ -147,9 +142,7 @@ class Alien extends GameObject{
         this.tag = "Alien";
         this.shootTimer.startTimer();
         this.targetY = obj.transform.pos.y + (obj.transform.size.y + GAP);
-        this.shape.index = objects.size();
-        gameObjects.add(this);
-        objects.add(this.shape);
+        
     }
 
     public void update(){
