@@ -129,9 +129,14 @@ class Alien extends GameObject{
     int alienType = 0;
     boolean movingOnAxis = false; //false/true -> x/y
     boolean isDead = false;
+    boolean isThrown = false;
     float targetY;
     float speed = 2;
     int direction = 1; //-1/1 -> left/right
+    float dirXThrow = 1;
+    float dirYThrow = 1;
+    float speedY = 2;
+    boolean isBaby = false;
 
     PImage[] deathAnim = deathSprites;
     int deathAnimFrame = -1;
@@ -145,6 +150,7 @@ class Alien extends GameObject{
         super(obj);
         this.alienType = type;
         this.tag = "Alien";
+        this.shape.transform.collider.isStatic = true;
         this.shootTimer.startTimer();
         this.targetY = obj.transform.pos.y + (obj.transform.size.y + GAP);
         this.shape.index = objects.size();
@@ -177,18 +183,20 @@ class Alien extends GameObject{
 
         this.move();
         Transform transform = this.shape.transform;
-        if (!this.movingOnAxis && (transform.pos.x + transform.size.x/2 + GAP >= width || transform.pos.x - transform.size.x/2 - GAP <= 0)){
-            this.movingOnAxis = !this.movingOnAxis;
-            this.shape.transform.pos.x -= this.speed * this.direction;
-            this.direction *= -1;
-        }
-        else if (this.movingOnAxis && (this.targetY - transform.pos.y) < 0.1){
-            this.movingOnAxis = !this.movingOnAxis;
-            this.targetY = transform.pos.y + (transform.size.y * 2 + GAP);
-            //System.out.println(this.targetY);
+        if (phase != 4 && phase != 3 && phase != 6){
+            if (!this.movingOnAxis && (transform.pos.x + transform.size.x/2 + GAP >= width || transform.pos.x - transform.size.x/2 - GAP <= 0)){
+                this.movingOnAxis = !this.movingOnAxis;
+                this.shape.transform.pos.x -= this.speed * this.direction;
+                this.direction *= -1;
+            }
+            else if (this.movingOnAxis && (this.targetY - transform.pos.y) < 0.1){
+                this.movingOnAxis = !this.movingOnAxis;
+                this.targetY = transform.pos.y + (transform.size.y * 2 + GAP);
+                //System.out.println(this.targetY);
+            }
         }
 
-        if (transform.pos.y > height){this.isDead = true;}
+        if (transform.pos.y > height - 100 && phase != 3){this.speed = 0;}
     }
 
     public void shoot(){
@@ -198,12 +206,76 @@ class Alien extends GameObject{
 
     public void move(){
         if (this.isDead) {return;}
-        if (!this.movingOnAxis){
-            this.shape.transform.pos.x += this.speed * this.direction;
+        switch (phase){
+            case 2:
+                if (!this.movingOnAxis){
+                    this.shape.transform.pos.x += this.speed * this.direction;
+                }
+                else{
+                    this.shape.transform.pos.y += this.speed;
+                }
+                break;
+            case 3:
+                return;
+                /*this.shape.transform.collider.isStatic = false;
+                if (!this.isThrown){
+                    this.shape.transform.pos.y += this.speed;
+                    for (GravityWell g : gravityWells){
+                        float difX = -(this.shape.transform.pos.x - g.shape.transform.pos.x);
+                        float difY = -(this.shape.transform.pos.y - g.shape.transform.pos.y);
+                        Vector2D pull = new Vector2D((1/(difX * difX)) * mathf.checkSign(difX), (1/(difY*difY))*mathf.checkSign(difY));
+                        this.shape.rb.force = pull.scalarMul(8);
+
+                        Vector2D dif = new Vector2D(difX, difY);
+                        if (dif.magnitude() < 5){
+                            
+                            this.speed = random(1, 3) * this.speed;
+                            this.speedY = random(1, 3) * this.speedY;
+                            this.dirXThrow = (((int)Math.round(random(0, 2)) == 1) ? 1 : -1);
+                            this.dirYThrow = (((int)Math.round(random(0, 2)) == 1) ? 1 : -1);
+                            this.isThrown = true;
+                        }
+                    }
+                }
+                else{
+                    this.shape.rb.velocity.x = this.speed * this.dirXThrow;
+                    this.shape.rb.velocity.y = this.speedY * this.dirYThrow;
+                }
+                break;*/
+
+            case 4:
+                this.speed = 2;
+                this.shape.transform.pos.x += this.speed * this.direction;
+                this.shape.transform.pos.y += this.speed;
+                if (Math.abs(this.shape.transform.pos.y - height/2) < 0.5){
+                    this.shape.sr.img = (this.direction == 1) ? alienSprites[2] : alienSprites[1];
+                }
+                break;
+            case 5:
+                this.isThrown = false;
+                if (!this.movingOnAxis){
+                    this.shape.transform.pos.x += this.speed * this.direction;
+                    this.shape.sr.img = (this.direction == 1) ? alienSprites[1] : alienSprites[2];
+                }
+                else{
+                    this.shape.transform.pos.y += this.speed;
+                }
+                break;
+            case 6:
+                
+                if(!this.isBaby){
+                    this.shape.transform.collider.isStatic = true;
+                    this.shape.transform.pos.x += this.speed * this.direction;
+                    this.shape.transform.pos.y += this.speed / 2;
+                }
+                else {
+                    this.shape.transform.pos.x -= this.speed;
+                    this.shape.transform.pos.y += this.speed * this.direction;
+                }
+            default:
         }
-        else{
-            this.shape.transform.pos.y += this.speed;
-        }
+        
+        this.shape.transform.translatePos();
     }
 
     public void destroy(){
@@ -240,6 +312,16 @@ class Alien extends GameObject{
             score++;
             bullet.destroy();
         }
+        else if(collided.tag.equals("Border")){
+            this.isThrown = true;
+            tempAlien = new Alien(new Shape2D(this.shape.transform.pos.x, this.shape.transform.pos.y, 32, 32, ColliderType.Square, alienSprites[2], 64, 64), 2);
+            tempAlien.direction = -1;
+            tempAlien.isBaby = true;
+            tempAlien = new Alien(new Shape2D(this.shape.transform.pos.x, this.shape.transform.pos.y, 32, 32, ColliderType.Square, alienSprites[2], 64, 64), 2);
+            tempAlien.isBaby = true;
+            tempAlien.direction = 1;
+            this.destroy();
+        }
     }
 
     @Override
@@ -272,5 +354,30 @@ class PlayButton extends UIElement{
             return true;
         }
         return false;
+    }
+}
+
+class GravityWell extends GameObject{
+    
+    public GravityWell(Shape2D obj){
+        super(obj);
+        this.tag = "Well";
+        this.shape.transform.collider.isTrigger = true;
+        this.shape.index = objects.size();
+        gameObjects.add(this);
+        objects.add(this.shape);
+    }
+}
+
+class Border extends GameObject{
+
+    public Border(Shape2D obj){
+        super(obj);
+        this.tag = "Border";
+        this.shape.transform.collider.isTrigger = true;
+        this.shape.transform.collider.isStatic = false;
+        this.shape.index = objects.size();
+        gameObjects.add(this);
+        objects.add(this.shape);
     }
 }

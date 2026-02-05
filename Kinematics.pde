@@ -7,7 +7,7 @@ class Rigidbody2D {
     public Vector2D velocity = new Vector2D(0, 0);
     public float angularVelocity = 0;
     //private Vector2D linearDrag = new Vector2D(10, 0);
-    private Force2D force = new Force2D(0, 0, ForceMode.Impulse);
+    private Vector2D force = new Vector2D(0, 0);
     
     
     public Rigidbody2D (Transform transform){

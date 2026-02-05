@@ -35,6 +35,7 @@ float alienMaxSpeed = 5;
 float alienSpawnMin = 30;
 float alienSpawnDecrement = 5;
 int difficulty = 0;
+int phase = 1;
 
 //Sprites
 PImage[] deathSprites = new PImage[12];
@@ -58,6 +59,7 @@ boolean[] keys = new boolean[4];
 Alien tempAlien;
 Player player;
 PlayButton pb;
+GravityWell[] gravityWells = new GravityWell[3];
 
 void setup(){
   //Processing stuff
@@ -122,12 +124,12 @@ void draw(){
 
     if (!gamePaused && !gameOver){
       boolean timerTriggered = gameTimer.updateTime();
-      if (timerTriggered){
+      /*if (timerTriggered){
         int alienType = Math.round(random(0, 2));
         tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[alienType], 128, 128), alienType);
         tempAlien.speed = alienSpeed;
         gameTimer.startTimer();
-      }
+      }*/
 
       boolean difficultyIncease = difficultyTimer.updateTime();
       if (difficultyIncease){
@@ -221,7 +223,11 @@ void mousePressed(){
     }
   }
   else{
-    if (!gameOver) {return;}
+    if (!gameOver) {
+      triggerPhase();
+      phase++;
+      return;
+    }
     onMenu = true;
     saveGame();
   }
@@ -294,5 +300,49 @@ void loadGame(){
   catch (FileNotFoundException e){
     System.out.println("An error occurred while loading game.");
     e.printStackTrace();
+  }
+}
+
+void triggerPhase(){
+  switch (phase){
+    case 1:
+      tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[1], 128, 128), 1);
+      tempAlien.speed = random(1, 5);
+      tempAlien = new Alien(new Shape2D(200, 50, 64, 64, ColliderType.Square, alienSprites[2], 128, 128), 2);
+      tempAlien.speed = random(1, 5);
+      tempAlien = new Alien(new Shape2D(350, 50, 64, 64, ColliderType.Square, alienSprites[0], 128, 128), 1);
+      tempAlien.speed = random(1, 5);
+      tempAlien = new Alien(new Shape2D(500, 50, 64, 64, ColliderType.Square, alienSprites[1], 128, 128), 1);
+      tempAlien.speed = random(1, 5);
+      tempAlien = new Alien(new Shape2D(650, 50, 64, 64, ColliderType.Square, alienSprites[2], 128, 128), 2);
+      tempAlien.speed = random(1, 5);
+      break;
+    case 2:
+      return;
+
+      /*GravityWell well = new GravityWell(new Shape2D(60, 650, 64, 64, ColliderType.Circle));
+      gravityWells[0] = well;
+      well.shape.setColor(50, 80, 200);
+      well = new GravityWell(new Shape2D(300, 650, 64, 64, ColliderType.Circle));
+      gravityWells[1] = well;
+      well.shape.setColor(50, 80, 200);
+      well = new GravityWell(new Shape2D(600, 650, 64, 64, ColliderType.Circle));
+      gravityWells[2] = well;
+      well.shape.setColor(50, 80, 200);
+      break;*/
+    case 3:
+      tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[1], 128, 128), 1);
+      tempAlien.direction = 1;
+      tempAlien = new Alien(new Shape2D(670, 50, 64, 64, ColliderType.Square, alienSprites[2], 128, 128), 2);
+      tempAlien.direction = -1;
+      break;
+    case 4:
+      tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[1], 128, 128), 1);
+      break;
+    case 5:
+      tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[1], 128, 128), 1);
+      Border border = new Border(new Shape2D(760, 360, 60, height, ColliderType.Rectangle));
+      break;
+    default:
   }
 }
