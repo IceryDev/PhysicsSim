@@ -135,7 +135,6 @@ class Player extends GameObject {
 }
 ```
 ## Full Reference:
----
 - This part contains most functions that each component has (excluding structural functions for the program to work)
 ### Component Hierarchy:
 
@@ -195,12 +194,12 @@ Mathf mathf = new Mathf();
 - ***.normalise()***: Normalises the original vector and returns it.
 - ***.scalarProject(Vector2D vec, boolean normalise)***: Scalar projects the original vector onto *vec* and returns the resultant value as a float. If *normalise* is set to true, divides the result with the magnitude of *vec2*.
 ##### *Matrix(int rows, int columns):*
-- ***getVal(int rowIndex, int columnIndex)***: Returns the value at the *rowIndex*th row and *columnIndex*th column.
-- ***setVal(int rowIndex, int columnIndex, float value)***: Sets the value at the *rowIndex*th row and *columnIndex*th column to *value*.
-- ***getVec(int columnIndex)***: Returns the column vector at the *columnIndex*th column.
-- ***setVec(Vector2D vec, int columnIndex)***: Sets the column vector at the *columnIndex*th column to *vec*.
-- ***setArray(float[][] matrix)***: Sets the array of the matrix to a clone of the given array.
-- ***matMul(Matrix matrix)***: Multiplies the original matrix with the given matrix and returns the result as a new Matrix.
+- ***.getVal(int rowIndex, int columnIndex)***: Returns the value at the *rowIndex*th row and *columnIndex*th column.
+- ***.setVal(int rowIndex, int columnIndex, float value)***: Sets the value at the *rowIndex*th row and *columnIndex*th column to *value*.
+- ***.getVec(int columnIndex)***: Returns the column vector at the *columnIndex*th column.
+- ***.setVec(Vector2D vec, int columnIndex)***: Sets the column vector at the *columnIndex*th column to *vec*.
+- ***.setArray(float[][] matrix)***: Sets the array of the matrix to a clone of the given array.
+- ***.matMul(Matrix matrix)***: Multiplies the original matrix with the given matrix and returns the result as a new Matrix.
 
 #### Built-Ins:
 ##### *Timer(int timer):*
