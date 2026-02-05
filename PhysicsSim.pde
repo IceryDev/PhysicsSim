@@ -1,6 +1,11 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Scanner;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.File;
 
 //Constants
 final float MARGIN = 40;
@@ -9,6 +14,7 @@ final float LIVES_MARGIN = 20;
 final int SPAWN_INTERVAL = 150;
 final int DIFFICULTY_INTERVAL = 1000;
 final int KEY_PRESS_INTERVAL = 20;
+final String SAVE_FILE_PATH = "data.txt";
 
 //Deco
 Vector2D[] decoPos = new Vector2D[15];
@@ -60,6 +66,8 @@ void setup(){
   noSmooth();
   
   rectMode(CENTER);
+
+  loadGame();
 
   //Sprites and handler initialisation
   for (int i = 0; i < deathSprites.length; i++){
@@ -215,6 +223,7 @@ void mousePressed(){
   else{
     if (!gameOver) {return;}
     onMenu = true;
+    saveGame();
   }
   
 }
@@ -258,4 +267,32 @@ void resetGame(){
   gameTimer.startTimer();
 
   player.lives = PLAYER_LIVES;
+}
+
+void saveGame(){
+  try (FileWriter fw = new FileWriter(SAVE_FILE_PATH)){
+    fw.write(score);
+    System.out.println("Game Saved!");
+  }
+  catch (IOException e){
+    System.err.println("An error occurred while writing to file.");
+    e.printStackTrace();
+  }
+}
+
+void loadGame(){
+  File saveFile = new File(SAVE_FILE_PATH);
+  if (!saveFile.exists()) { return; }
+
+  try (Scanner reader = new Scanner(saveFile)){
+    if (reader.hasNextInt()){
+      bestScore = reader.nextInt();
+      System.out.println("Game Loaded!");
+      System.out.println(bestScore);
+    }
+  }
+  catch (FileNotFoundException e){
+    System.out.println("An error occurred while loading game.");
+    e.printStackTrace();
+  }
 }
