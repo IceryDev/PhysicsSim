@@ -10,7 +10,7 @@
 - The PhysicsSim.pde file is the main file where the standard Processing functions (setup and draw) reside
 - Use the Assets.pde file to declare custom game objects to be instantiated
 
-### Initialise Environment
+### Initialise Environment:
 - To draw and update each object, we need a ShapeDrawer and if we need to handle collisions, we need a CollisionHandler
 - Both are declared as sd and ch in the BuiltIns.pde file, initialise both in the main (PhysicsSim.pde) file
 ```java
@@ -33,7 +33,7 @@ void draw(){
 ```
 - Where objects, gameObjects are lists of all the Shape2D's and GameObjects, respectively. (The for loop will also be automated in the future)
 
-### Create a GameObject
+### Create a GameObject:
 - Create a class that inherits from GameObject
 ```java
 class Player extends GameObject {
@@ -72,7 +72,7 @@ void setup(){
                               ColliderType ct, PImage img, float imgSizeX, float imgSizeY));
 }
 ```
-### GameObject methods
+### GameObject Methods:
 - update(): Runs every frame, include it in your class to change behaviour
 ```java
 class Player extends GameObject {
@@ -134,10 +134,10 @@ class Player extends GameObject {
   }
 }
 ```
-## Full Reference
+## Full Reference:
 ---
 - This part contains most functions that each component has (excluding structural functions for the program to work)
-### Component Hierarchy
+### Component Hierarchy:
 
 <p align="center">
   <img src="Illustrations/components.drawio.png" alt="Component Structure">
@@ -170,7 +170,7 @@ class Player extends GameObject {
   - ***.setCor(float value)***: Sets the coefficient of restitution for the collider. Must be between 0 and 1 inclusive (0: Perfectly inelastic, 1: Perfectly elastic). If two objects with different COR's collide, the minimum is taken.
   - ***.getCor()***: Returns the coefficient of restitution of the collider.
 ---
-### Tools
+### Tools:
 - These are the helping libraries to support abstract structures such as matrices and vectors.
 #### Linear Algebra:
 - A Mathf type is already initialised:
@@ -195,10 +195,31 @@ Mathf mathf = new Mathf();
 - ***.normalise()***: Normalises the original vector and returns it.
 - ***.scalarProject(Vector2D vec, boolean normalise)***: Scalar projects the original vector onto *vec* and returns the resultant value as a float. If *normalise* is set to true, divides the result with the magnitude of *vec2*.
 ##### *Matrix(int rows, int columns):*
-- ***getVal()***:
-- ***setVal()***:
-- ***getVec()***:
-- ***setVec()***:
-- ***setArray()***:
-- ***matMul()***:
+- ***getVal(int rowIndex, int columnIndex)***: Returns the value at the *rowIndex*th row and *columnIndex*th column.
+- ***setVal(int rowIndex, int columnIndex, float value)***: Sets the value at the *rowIndex*th row and *columnIndex*th column to *value*.
+- ***getVec(int columnIndex)***: Returns the column vector at the *columnIndex*th column.
+- ***setVec(Vector2D vec, int columnIndex)***: Sets the column vector at the *columnIndex*th column to *vec*.
+- ***setArray(float[][] matrix)***: Sets the array of the matrix to a clone of the given array.
+- ***matMul(Matrix matrix)***: Multiplies the original matrix with the given matrix and returns the result as a new Matrix.
+
+#### Built-Ins:
+##### *Timer(int timer):*
+- Returns true after the given amount of frame count, must be updated each frame. Example use:
+```java
+Timer gameTimer = new Timer(50);
+...
+void setup(){
+  gameTimer.startTimer();
+}
+...
+void draw(){
+  boolean timerTriggered = gameTimer.updateTime();
+  if (timerTriggered){
+    //Functionality here
+    gameTimer.startTimer();
+  }
+}
+...
+```
+
 **Note: This documentation is still work in progress.**
