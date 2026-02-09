@@ -96,7 +96,7 @@ void setup(){
   textFont(pixel);
   defaultScene = new Scene(true);
   sd = new ShapeDrawer();
-  defaultScene.removeHandler("shape");
+  defaultScene.removeHandler(UtilityType.Shapes);
   gameTimer.startTimer();
   difficultyTimer.startTimer();
   keyPressTimer.startTimer();

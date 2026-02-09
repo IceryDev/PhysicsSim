@@ -79,6 +79,52 @@ class Shape2D {
     }
 }
 
+class ShapeBuilder{
+    float posX = 0;
+    float posY = 0;
+    float sizeX = 1;
+    float sizeY = 1;
+    ColliderType ct = ColliderType.Square;
+    PImage img;
+    float imgSizeX = 1;
+    float imgSizeY = 1;
+
+    public ShapeBuilder setPos(float x, float y){
+        this.posX = x;
+        this.posY = y;
+        return this;
+    }
+
+    public ShapeBuilder setSize(float x, float y){
+        this.sizeX = x;
+        this.sizeY = y;
+        return this;
+    }
+
+    public ShapeBuilder setCollider(ColliderType ct){
+        this.ct = ct;
+        return this;
+    }
+
+    public ShapeBuilder addImage(PImage img, float x, float y){
+        this.img = img;
+        this.imgSizeX = x;
+        this.imgSizeY = y;
+        return this;
+    }
+
+    public Shape2D build(){
+        if (sizeX <= 0 || sizeY <= 0){ 
+            throw new IllegalStateException("Shape size must be positive");
+        }
+        if (img != null && (imgSizeX <= 0 || imgSizeY <= 0)){
+            throw new IllegalStateException("Image size must be positive");
+        }
+        return (this.img == null) ? new Shape2D(this.posX, this.posY, this.sizeX, this.sizeY, this.ct) :
+                new Shape2D(this.posX, this.posY, this.sizeX, this.sizeY, this.ct, this.img, this.imgSizeX, this.imgSizeY);
+    }
+}
+
 class ShapeDrawer implements Utility{
 
     public void update(Scene scene){
@@ -106,8 +152,8 @@ class ShapeDrawer implements Utility{
         }
     }
 
-    public String getKey(){
-        return "shape";
+    public UtilityType getKey(){
+        return UtilityType.Shapes;
     }
 
     public void drawAll(ArrayList<Shape2D> obj){

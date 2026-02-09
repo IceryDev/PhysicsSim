@@ -7,8 +7,8 @@ class CollisionHandler implements Utility{
         this.handleCollisions(scene.shapes);
     }
 
-    public String getKey(){
-        return "collision";
+    public UtilityType getKey(){
+        return UtilityType.Collisions;
     }
 
     public void handleCollisions(ArrayList<Shape2D> objects){

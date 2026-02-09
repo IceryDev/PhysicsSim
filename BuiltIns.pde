@@ -1,6 +1,5 @@
-ArrayList<Shape2D> objects = new ArrayList<>(); //Stores all the shapes
-ArrayList<GameObject> gameObjects = new ArrayList<>(); //Stores all the objects
 Scene defaultScene;
+ShapeBuilder shapeBuilder = new ShapeBuilder();
 Mathf mathf = new Mathf();
 
 class GameObject{
@@ -49,7 +48,7 @@ class UIElement{
 class Scene{
     ArrayList<Shape2D> shapes = new ArrayList<>();
     ArrayList<GameObject> gameObjects = new ArrayList<>();
-    HashMap<String, Utility> handlers = new HashMap<>();
+    HashMap<UtilityType, Utility> handlers = new HashMap<>();
 
     public Scene(boolean useDefault){
         if (!useDefault) { return; }
@@ -72,7 +71,7 @@ class Scene{
         return this;
     }
 
-    public Scene removeHandler(String key) {
+    public Scene removeHandler(UtilityType key) {
         this.handlers.remove(key);
         return this;
     }
@@ -81,7 +80,13 @@ class Scene{
 interface Utility{
 
     public void update(Scene scene);
-    public String getKey();
+    public UtilityType getKey();
+}
+
+enum UtilityType{
+    Collisions,
+    Objects,
+    Shapes;
 }
 
 class Timer{
@@ -126,7 +131,7 @@ class ObjectHandler implements Utility{
         }
     }
 
-    public String getKey(){
-        return "object";
+    public UtilityType getKey(){
+        return UtilityType.Objects;
     }
 }
