@@ -1,8 +1,16 @@
-class CollisionHandler{
+class CollisionHandler implements Utility{
   
     HashSet<Collision2D> collisions = new HashSet<>();
     HashSet<Collision2D> prevCollisions = new HashSet<>();
     
+    public void update(Scene scene){
+        this.handleCollisions(scene.shapes);
+    }
+
+    public String getKey(){
+        return "collision";
+    }
+
     public void handleCollisions(ArrayList<Shape2D> objects){
         if (objects.size() < 2) { return; }
         

@@ -59,6 +59,9 @@ Alien tempAlien;
 Player player;
 PlayButton pb;
 
+//Utility
+ShapeDrawer sd;
+
 void setup(){
   //Processing stuff
   size(720, 720, P3D);
@@ -91,8 +94,9 @@ void setup(){
   starDeco = loadImage("Stars1.png");
   pixel = createFont("Fonts/PIXSPACE-DEMO.ttf", 128);
   textFont(pixel);
-  ch = new CollisionHandler();
+  defaultScene = new Scene(true);
   sd = new ShapeDrawer();
+  defaultScene.removeHandler("shape");
   gameTimer.startTimer();
   difficultyTimer.startTimer();
   keyPressTimer.startTimer();
@@ -135,15 +139,10 @@ void draw(){
         difficultyTimer.startTimer();
       }
 
-      for (int i = 0; i < gameObjects.size(); i++){
-        gameObjects.get(i).update();
-      }
-      player.update();
-      sd.updateAll(objects);
-      ch.handleCollisions(objects);
+      defaultScene.updateScene();
     }
 
-    sd.drawAll(objects);
+    sd.update(defaultScene);
     if (gameOver){
       fill(255, 50, 50);
       textSize(55);
@@ -231,7 +230,7 @@ void mousePressed(){
 void increaseDifficulty(){
   if (alienSpeed < alienMaxSpeed) { 
     alienSpeed += alienSpeedIncrement;
-    for (GameObject o : gameObjects){
+    for (GameObject o : defaultScene.gameObjects){
       if (o.tag.equals("Alien")){
         Alien alien = (Alien) o;
         alien.speed += alienSpeedIncrement;
@@ -248,8 +247,8 @@ void increaseDifficulty(){
 }
 
 void resetGame(){
-  for (int i = gameObjects.size() - 1; i >= 0; i--){
-    GameObject o = gameObjects.get(i);
+  for (int i = defaultScene.gameObjects.size() - 1; i >= 0; i--){
+    GameObject o = defaultScene.gameObjects.get(i);
     if (!o.tag.equals("Player")){
       o.destroy();
     }

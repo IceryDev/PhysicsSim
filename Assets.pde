@@ -1,14 +1,14 @@
 class Player extends GameObject{
 
     int lives;
-    float speed = 3;
-    Timer shootCooldown = new Timer(50);
+    float speed = 6;
+    Timer shootCooldown = new Timer(40);
     boolean isShooting = false;
     boolean isAlive = true;
     Mathf mathf = new Mathf();
 
     public Player(Shape2D obj, int lives){
-        super(obj);
+        super(obj, defaultScene);
         this.lives = lives;
         this.tag = "Player";
     }
@@ -61,7 +61,7 @@ class AlienBullet extends GameObject {
     float speed = 15;
 
     public AlienBullet(Shape2D obj){
-        super(obj);
+        super(obj, defaultScene);
         
         this.tag = "AlienBullet";
         this.shape.transform.collider.isTrigger = true;
@@ -74,16 +74,6 @@ class AlienBullet extends GameObject {
             this.destroy();
         }
     }
-
-    public void destroy(){
-        for (int i = 0; i < objects.size(); i++){
-            if (i > this.shape.index){
-                objects.get(i).index--;
-            }
-        }
-        objects.remove(this.shape.index);
-        gameObjects.remove(this.shape.index);
-    }
 }
 
 class PlayerBullet extends GameObject{
@@ -91,7 +81,7 @@ class PlayerBullet extends GameObject{
     float speed = 15;
 
     public PlayerBullet(Shape2D obj){
-        super(obj);
+        super(obj, defaultScene);
         
         this.tag = "Bullet";
         this.shape.transform.collider.isTrigger = true;
@@ -104,15 +94,11 @@ class PlayerBullet extends GameObject{
             this.destroy();
         }
     }
+}
 
-    public void destroy(){
-        for (int i = 0; i < objects.size(); i++){
-            if (i > this.shape.index){
-                objects.get(i).index--;
-            }
-        }
-        objects.remove(this.shape.index);
-        gameObjects.remove(this.shape.index);
+class PowerUp extends GameObject{
+    public PowerUp (Shape2D obj){
+        super(obj, defaultScene);
     }
 }
 
@@ -137,7 +123,7 @@ class Alien extends GameObject{
     Mathf mathf = new Mathf();
 
     public Alien(Shape2D obj, int type){
-        super(obj);
+        super(obj, defaultScene);
         this.alienType = type;
         this.tag = "Alien";
         this.shootTimer.startTimer();
@@ -197,16 +183,6 @@ class Alien extends GameObject{
         else{
             this.shape.transform.pos.y += this.speed;
         }
-    }
-
-    public void destroy(){
-        for (int i = 0; i < objects.size(); i++){
-            if (i > this.shape.index){
-                objects.get(i).index--;
-            }
-        }
-        objects.remove(this.shape.index);
-        gameObjects.remove(this.shape.index);
     }
 
     public void playDeathAnim(){

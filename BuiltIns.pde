@@ -1,19 +1,20 @@
 ArrayList<Shape2D> objects = new ArrayList<>(); //Stores all the shapes
 ArrayList<GameObject> gameObjects = new ArrayList<>(); //Stores all the objects
-CollisionHandler ch;
-ShapeDrawer sd;
+Scene defaultScene;
 Mathf mathf = new Mathf();
 
 class GameObject{
     Shape2D shape;
+    Scene parent;
     String tag = "Default";
 
-    public GameObject(Shape2D obj){
+    public GameObject(Shape2D obj, Scene scene){
         this.shape = obj;
         this.shape.gameObject = this;
-        this.shape.index = objects.size();
-        gameObjects.add(this);
-        objects.add(this.shape);
+        this.parent = scene;
+        this.shape.index = scene.shapes.size();
+        scene.gameObjects.add(this);
+        scene.shapes.add(this.shape);
     }
 
     public void update(){}
@@ -31,18 +32,56 @@ class GameObject{
     public void onCollisionExit(GameObject other){}
 
     public void destroy(){
-        for (int i = 0; i < objects.size(); i++){
+        for (int i = 0; i < this.parent.shapes.size(); i++){
             if (i > this.shape.index){
-                objects.get(i).index--;
+                this.parent.shapes.get(i).index--;
             }
         }
-        objects.remove(this.shape.index);
-        gameObjects.remove(this.shape.index);
+        this.parent.shapes.remove(this.shape.index);
+        this.parent.gameObjects.remove(this.shape.index);
     }
 }
 
 class UIElement{
     //Functionality to come here. :)
+}
+
+class Scene{
+    ArrayList<Shape2D> shapes = new ArrayList<>();
+    ArrayList<GameObject> gameObjects = new ArrayList<>();
+    HashMap<String, Utility> handlers = new HashMap<>();
+
+    public Scene(boolean useDefault){
+        if (!useDefault) { return; }
+        CollisionHandler ch = new CollisionHandler();
+        ShapeDrawer sd = new ShapeDrawer();
+        ObjectHandler oh = new ObjectHandler();
+        this.addHandler(sd)
+            .addHandler(ch)
+            .addHandler(oh);
+    }
+
+    public void updateScene(){
+        for (Utility u : handlers.values()){
+            u.update(this);
+        }
+    }
+
+    public Scene addHandler(Utility u){
+        this.handlers.put(u.getKey(), u);
+        return this;
+    }
+
+    public Scene removeHandler(String key) {
+        this.handlers.remove(key);
+        return this;
+    }
+}
+
+interface Utility{
+
+    public void update(Scene scene);
+    public String getKey();
 }
 
 class Timer{
@@ -73,4 +112,21 @@ class Timer{
         this.time = this.totalTime;
     }
     
+}
+
+class ObjectHandler implements Utility{
+
+    public void update(Scene scene){
+        for (int i = 0; i < scene.shapes.size(); i++){
+            scene.shapes.get(i).update();
+        }
+
+        for (int i = 0; i < scene.gameObjects.size(); i++){
+            scene.gameObjects.get(i).update();
+        }
+    }
+
+    public String getKey(){
+        return "object";
+    }
 }
