@@ -79,11 +79,81 @@ class Shape2D {
     }
 }
 
-class ShapeDrawer{
-    public void updateAll(ArrayList<Shape2D> obj){
-        for (int i = 0; i < obj.size(); i++){
-            obj.get(i).update();
+class ShapeBuilder{
+    float posX = 0;
+    float posY = 0;
+    float sizeX = 1;
+    float sizeY = 1;
+    ColliderType ct = ColliderType.Square;
+    PImage img;
+    float imgSizeX = 1;
+    float imgSizeY = 1;
+
+    public ShapeBuilder setPos(float x, float y){
+        this.posX = x;
+        this.posY = y;
+        return this;
+    }
+
+    public ShapeBuilder setSize(float x, float y){
+        this.sizeX = x;
+        this.sizeY = y;
+        return this;
+    }
+
+    public ShapeBuilder setCollider(ColliderType ct){
+        this.ct = ct;
+        return this;
+    }
+
+    public ShapeBuilder addImage(PImage img, float x, float y){
+        this.img = img;
+        this.imgSizeX = x;
+        this.imgSizeY = y;
+        return this;
+    }
+
+    public Shape2D build(){
+        if (sizeX <= 0 || sizeY <= 0){ 
+            throw new IllegalStateException("Shape size must be positive");
         }
+        if (img != null && (imgSizeX <= 0 || imgSizeY <= 0)){
+            throw new IllegalStateException("Image size must be positive");
+        }
+        return (this.img == null) ? new Shape2D(this.posX, this.posY, this.sizeX, this.sizeY, this.ct) :
+                new Shape2D(this.posX, this.posY, this.sizeX, this.sizeY, this.ct, this.img, this.imgSizeX, this.imgSizeY);
+    }
+}
+
+class ShapeDrawer implements Utility{
+
+    public void update(Scene scene){
+        for (Shape2D shape : scene.shapes){
+            if (shape.transform.imgAttached){
+                float imgH = shape.sr.img.height;
+                float imgW = shape.sr.img.width;
+                beginShape(QUADS);
+                texture(shape.sr.img);
+                vertex(shape.imagePoints().getVal(0, 0), shape.imagePoints().getVal(1, 0), imgW, imgH);
+                vertex(shape.imagePoints().getVal(0, 1), shape.imagePoints().getVal(1, 1), imgW, 0);
+                vertex(shape.imagePoints().getVal(0, 2), shape.imagePoints().getVal(1, 2), 0, 0);
+                vertex(shape.imagePoints().getVal(0, 3), shape.imagePoints().getVal(1, 3), 0, imgH);
+                endShape();
+            }
+            else{
+                if (shape.transform.collider.type == ColliderType.Circle){
+                    drawCircle(shape);
+                }
+                else if (shape.transform.vertexTransform.columns == 4){
+                    if (shape.wrapAround){drawQuad(shape, shape.transform.translatePos(shape.rb.getToroidalPos()));}
+                    else {drawQuad(shape);}
+                }
+            }
+        }
+    }
+
+    public UtilityType getKey(){
+        return UtilityType.Shapes;
     }
 
     public void drawAll(ArrayList<Shape2D> obj){

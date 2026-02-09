@@ -1,8 +1,8 @@
 class Player extends GameObject{
 
     int lives;
-    float speed = 3;
-    Timer shootCooldown = new Timer(50);
+    float speed = 6;
+    Timer shootCooldown = new Timer(40);
     boolean isShooting = false;
     boolean isAlive = true;
     Mathf mathf = new Mathf();
@@ -39,9 +39,16 @@ class Player extends GameObject{
         this.shape.transform.translatePos();
     }
 
+    @SuppressWarnings("unused")
     public void shoot(){
-        PlayerBullet pb = new PlayerBullet(new Shape2D(
-            this.shape.transform.pos.x, this.shape.transform.pos.y, 32, 32, ColliderType.Square, playerBullet, 128, 128));
+        
+        shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
+                    .setSize(32, 32)
+                    .setCollider(ColliderType.Square)
+                    .addImage(playerBullet, 128, 128);
+        
+                    
+        new PlayerBullet(shapeBuilder.build());
         
     }
 
@@ -50,6 +57,10 @@ class Player extends GameObject{
         if (other.tag.equals("AlienBullet")){
             AlienBullet bullet = (AlienBullet) other;
             this.lives -= bullet.damage;
+            other.destroy();
+        }
+        else if (other.tag.equals("Powerup")){
+            Powerup powerup = (Powerup) other;
             other.destroy();
         }
     }
@@ -74,16 +85,6 @@ class AlienBullet extends GameObject {
             this.destroy();
         }
     }
-
-    public void destroy(){
-        for (int i = 0; i < objects.size(); i++){
-            if (i > this.shape.index){
-                objects.get(i).index--;
-            }
-        }
-        objects.remove(this.shape.index);
-        gameObjects.remove(this.shape.index);
-    }
 }
 
 class PlayerBullet extends GameObject{
@@ -104,15 +105,15 @@ class PlayerBullet extends GameObject{
             this.destroy();
         }
     }
+}
 
-    public void destroy(){
-        for (int i = 0; i < objects.size(); i++){
-            if (i > this.shape.index){
-                objects.get(i).index--;
-            }
-        }
-        objects.remove(this.shape.index);
-        gameObjects.remove(this.shape.index);
+class Powerup extends GameObject{
+    public int type;
+    public Powerup (Shape2D obj, int type){
+        super(obj);
+        this.type = type;
+        this.shape.transform.collider.isTrigger = true;
+        this.tag = "Powerup";
     }
 }
 
@@ -184,9 +185,13 @@ class Alien extends GameObject{
         if (transform.pos.y > height){this.isDead = true;}
     }
 
+    @SuppressWarnings("unused")
     public void shoot(){
-        AlienBullet pb = new AlienBullet(new Shape2D(
-            this.shape.transform.pos.x, this.shape.transform.pos.y, 32, 32, ColliderType.Square, alienBullet, 128, 128));
+        shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
+                    .setSize(32, 32)
+                    .setCollider(ColliderType.Square)
+                    .addImage(alienBullet, 128, 128);
+        new AlienBullet(shapeBuilder.build());
     }
 
     public void move(){
@@ -197,16 +202,6 @@ class Alien extends GameObject{
         else{
             this.shape.transform.pos.y += this.speed;
         }
-    }
-
-    public void destroy(){
-        for (int i = 0; i < objects.size(); i++){
-            if (i > this.shape.index){
-                objects.get(i).index--;
-            }
-        }
-        objects.remove(this.shape.index);
-        gameObjects.remove(this.shape.index);
     }
 
     public void playDeathAnim(){
