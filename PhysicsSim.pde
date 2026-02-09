@@ -95,6 +95,7 @@ void setup(){
   pixel = createFont("Fonts/PIXSPACE-DEMO.ttf", 128);
   textFont(pixel);
   defaultScene = new Scene(true);
+  sceneManager.addScene(defaultScene);
   sd = new ShapeDrawer();
   defaultScene.removeHandler(UtilityType.Shapes);
   gameTimer.startTimer();
@@ -104,7 +105,6 @@ void setup(){
   //Object Instantiation
   pb = new PlayButton(360, 450, 140, 50);
   player = new Player(new Shape2D(50, 50, 64, 64, ColliderType.Square, playerSprite, 128, 128), PLAYER_LIVES);
-  tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[1], 128, 128), 1);
   
 }
 
@@ -139,10 +139,10 @@ void draw(){
         difficultyTimer.startTimer();
       }
 
-      defaultScene.updateScene();
+      sceneManager.activeScene.updateScene();
     }
 
-    sd.update(defaultScene);
+    sd.update(sceneManager.activeScene);
     if (gameOver){
       fill(255, 50, 50);
       textSize(55);

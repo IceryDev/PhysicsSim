@@ -8,7 +8,7 @@ class Player extends GameObject{
     Mathf mathf = new Mathf();
 
     public Player(Shape2D obj, int lives){
-        super(obj, defaultScene);
+        super(obj);
         this.lives = lives;
         this.tag = "Player";
     }
@@ -39,9 +39,16 @@ class Player extends GameObject{
         this.shape.transform.translatePos();
     }
 
+    @SuppressWarnings("unused")
     public void shoot(){
-        PlayerBullet pb = new PlayerBullet(new Shape2D(
-            this.shape.transform.pos.x, this.shape.transform.pos.y, 32, 32, ColliderType.Square, playerBullet, 128, 128));
+        
+        shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
+                    .setSize(32, 32)
+                    .setCollider(ColliderType.Square)
+                    .addImage(playerBullet, 128, 128);
+        
+                    
+        new PlayerBullet(shapeBuilder.build());
         
     }
 
@@ -50,6 +57,10 @@ class Player extends GameObject{
         if (other.tag.equals("AlienBullet")){
             AlienBullet bullet = (AlienBullet) other;
             this.lives -= bullet.damage;
+            other.destroy();
+        }
+        else if (other.tag.equals("Powerup")){
+            Powerup powerup = (Powerup) other;
             other.destroy();
         }
     }
@@ -61,7 +72,7 @@ class AlienBullet extends GameObject {
     float speed = 15;
 
     public AlienBullet(Shape2D obj){
-        super(obj, defaultScene);
+        super(obj);
         
         this.tag = "AlienBullet";
         this.shape.transform.collider.isTrigger = true;
@@ -81,7 +92,7 @@ class PlayerBullet extends GameObject{
     float speed = 15;
 
     public PlayerBullet(Shape2D obj){
-        super(obj, defaultScene);
+        super(obj);
         
         this.tag = "Bullet";
         this.shape.transform.collider.isTrigger = true;
@@ -96,9 +107,13 @@ class PlayerBullet extends GameObject{
     }
 }
 
-class PowerUp extends GameObject{
-    public PowerUp (Shape2D obj){
-        super(obj, defaultScene);
+class Powerup extends GameObject{
+    public int type;
+    public Powerup (Shape2D obj, int type){
+        super(obj);
+        this.type = type;
+        this.shape.transform.collider.isTrigger = true;
+        this.tag = "Powerup";
     }
 }
 
@@ -123,7 +138,7 @@ class Alien extends GameObject{
     Mathf mathf = new Mathf();
 
     public Alien(Shape2D obj, int type){
-        super(obj, defaultScene);
+        super(obj);
         this.alienType = type;
         this.tag = "Alien";
         this.shootTimer.startTimer();
@@ -170,9 +185,13 @@ class Alien extends GameObject{
         if (transform.pos.y > height){this.isDead = true;}
     }
 
+    @SuppressWarnings("unused")
     public void shoot(){
-        AlienBullet pb = new AlienBullet(new Shape2D(
-            this.shape.transform.pos.x, this.shape.transform.pos.y, 32, 32, ColliderType.Square, alienBullet, 128, 128));
+        shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
+                    .setSize(32, 32)
+                    .setCollider(ColliderType.Square)
+                    .addImage(alienBullet, 128, 128);
+        new AlienBullet(shapeBuilder.build());
     }
 
     public void move(){

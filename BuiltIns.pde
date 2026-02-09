@@ -1,5 +1,6 @@
-Scene defaultScene;
+Scene defaultScene = new Scene(true);
 ShapeBuilder shapeBuilder = new ShapeBuilder();
+SceneManager sceneManager = new SceneManager();
 Mathf mathf = new Mathf();
 
 class GameObject{
@@ -7,13 +8,13 @@ class GameObject{
     Scene parent;
     String tag = "Default";
 
-    public GameObject(Shape2D obj, Scene scene){
+    public GameObject(Shape2D obj){
         this.shape = obj;
         this.shape.gameObject = this;
-        this.parent = scene;
-        this.shape.index = scene.shapes.size();
-        scene.gameObjects.add(this);
-        scene.shapes.add(this.shape);
+        this.parent = sceneManager.activeScene;
+        this.shape.index = this.parent.shapes.size();
+        this.parent.gameObjects.add(this);
+        this.parent.shapes.add(this.shape);
     }
 
     public void update(){}
@@ -49,6 +50,7 @@ class Scene{
     ArrayList<Shape2D> shapes = new ArrayList<>();
     ArrayList<GameObject> gameObjects = new ArrayList<>();
     HashMap<UtilityType, Utility> handlers = new HashMap<>();
+    String name = "0";
 
     public Scene(boolean useDefault){
         if (!useDefault) { return; }
@@ -75,6 +77,30 @@ class Scene{
         this.handlers.remove(key);
         return this;
     }
+}
+
+class SceneManager{
+    HashMap<String, Scene> scenes = new HashMap<>();
+    Scene activeScene = defaultScene;
+
+    public void changeScene(String name){
+        if(!this.scenes.containsKey(name)){
+            System.err.println("No such scene \"" + name + "\" exists!");
+            return;
+        }
+        this.activeScene = this.scenes.get(name);
+    }
+
+    public void addScene(Scene scene){
+        scene.name = "" + this.scenes.size();
+        this.scenes.put(scene.name, scene);
+    }
+
+    public void addScene(Scene scene, String name){
+        scene.name = name;
+        this.scenes.put(name, scene);
+    }
+    
 }
 
 interface Utility{
