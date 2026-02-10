@@ -59,7 +59,6 @@ class Player extends GameObject {
 - Each GameObject has to take at least one parameter of type Shape2D. To construct a Shape2D, use the class ShapeBuilder (one of which is already instantiated as ***shapeBuilder***) as following:
 ```java
 void setup(){
-  //The last three parameters are optional, if not provided, the engine will draw the shape of the collider type specified.
   //Possible collider types: ColliderType.Square, ColliderType.Rectangle, ColliderType.Circle
   Player player = new Player(shapeBuilder.setPos(float posX, float posY)
                                          .setSize(float sizeX, float sizeY)
@@ -82,7 +81,7 @@ class Player extends GameObject {
   }
 }
 ```
-- destroy(): Removes the object from both the *objects* and *gameObjects* list, and hence destroys the object. Run:
+- destroy(): Removes the object from the scene, and hence destroys the object. Run:
 ```java
 class Player extends GameObject {
   ...
