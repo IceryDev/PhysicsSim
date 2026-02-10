@@ -39,6 +39,7 @@ int difficulty = 0;
 //Sprites
 PImage[] deathSprites = new PImage[12];
 PImage[] alienSprites = new PImage[3];
+PImage[] powerupSprites = new PImage[3];
 PImage playerSprite;
 PImage playerBullet;
 PImage alienBullet;
@@ -53,6 +54,7 @@ boolean onMenu = true;
 boolean gameOver = false;
 boolean gamePaused = false;
 boolean[] keys = new boolean[4];
+boolean playerHasPowerup1 = false;
 
 //GameObjects
 Alien tempAlien;
@@ -82,6 +84,10 @@ void setup(){
   for (int i = 0; i < keys.length; i++){
     keys[i] = false;
   }
+
+  powerupSprites[0] = loadImage("MultiShot.png");
+  powerupSprites[1] = loadImage("PenetratingBullet.png");
+  powerupSprites[2] = loadImage("FasterReload.png");
   alienSprites[0] = loadImage("AlienShip1.png");
   alienSprites[1] = loadImage("AlienShip3.png");
   alienSprites[2] = loadImage("AlienShip2.png");
