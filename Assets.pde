@@ -3,8 +3,10 @@ class Player extends GameObject{
     int lives;
     float speed = 6;
     Timer shootCooldown = new Timer(40);
+    Timer powerupTimer = new Timer(150);
     boolean isShooting = false;
     boolean isAlive = true;
+    int activePowerup = -1;
     Mathf mathf = new Mathf();
 
     public Player(Shape2D obj, int lives){
@@ -29,8 +31,14 @@ class Player extends GameObject{
         }
         boolean shootAvailable = this.shootCooldown.updateTime();
         if (keys[2] && shootAvailable) {
-            this.shoot();
+            this.shoot(this.activePowerup);
             this.shootCooldown.startTimer();
+        }
+
+        if (this.powerupTimer.updateTime()){ 
+            this.activePowerup = -1; 
+            playerHasPowerup1 = false;
+            this.shootCooldown.totalTime = 40;
         }
 
         this.shape.transform.pos = new Vector2D(mathf.clamp(
@@ -39,8 +47,7 @@ class Player extends GameObject{
         this.shape.transform.translatePos();
     }
 
-    @SuppressWarnings("unused")
-    public void shoot(){
+    public void shoot(int type){
         
         shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
                     .setSize(32, 32)
@@ -48,7 +55,22 @@ class Player extends GameObject{
                     .addImage(playerBullet, 128, 128);
         
                     
-        new PlayerBullet(shapeBuilder.build());
+        PlayerBullet p = new PlayerBullet(shapeBuilder.build());
+        switch (type){
+            case 0:
+                p = new PlayerBullet(shapeBuilder.build());
+                Matrix tmp = new Matrix(2, 1);
+                tmp.setVec(p.shape.rb.velocity, 0);
+                p.shape.rb.velocity = mathf.createRotMatrix(mathf.deg2Rad(5)).matMul(tmp).getVec(0);
+                p.shape.transform.rotateVertices(mathf.deg2Rad(5));
+                p = new PlayerBullet(shapeBuilder.build());
+                tmp.setVec(p.shape.rb.velocity, 0);
+                p.shape.rb.velocity = mathf.createRotMatrix(mathf.deg2Rad(-5)).matMul(tmp).getVec(0);
+                p.shape.transform.rotateVertices(mathf.deg2Rad(-5));
+                break;
+            default:
+        }
+
         
     }
 
@@ -61,6 +83,10 @@ class Player extends GameObject{
         }
         else if (other.tag.equals("Powerup")){
             Powerup powerup = (Powerup) other;
+            this.activePowerup = powerup.type;
+            if (this.activePowerup == 1){ playerHasPowerup1 = true; }
+            else if(this.activePowerup == 2) { this.shootCooldown.totalTime = 20; }
+            this.powerupTimer.startTimer();
             other.destroy();
         }
     }
@@ -114,6 +140,7 @@ class Powerup extends GameObject{
         this.type = type;
         this.shape.transform.collider.isTrigger = true;
         this.tag = "Powerup";
+        this.shape.rb.velocity.y = 10;
     }
 }
 
@@ -125,6 +152,7 @@ class Alien extends GameObject{
     int alienType = 0;
     boolean movingOnAxis = false; //false/true -> x/y
     boolean isDead = false;
+    boolean dropRoll = false;
     float targetY;
     float speed = 2;
     int direction = 1; //-1/1 -> left/right
@@ -204,8 +232,35 @@ class Alien extends GameObject{
         }
     }
 
+    @SuppressWarnings("unused")
     public void playDeathAnim(){
         boolean updateSprite = this.frameIncrement.updateTime();
+        if (!this.dropRoll){
+            int aggregate = mathf.randInt(100) + (difficulty * 5);
+            System.out.println(aggregate);
+            if (aggregate > 97){
+                new Powerup(shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
+                                        .setSize(32, 32)
+                                        .setCollider(ColliderType.Square)
+                                        .addImage(powerupSprites[0], 64, 64)
+                                        .build(), 0);
+            }
+            else if (aggregate <= 97 && aggregate > 90){
+                new Powerup(shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
+                                        .setSize(32, 32)
+                                        .setCollider(ColliderType.Square)
+                                        .addImage(powerupSprites[1], 64, 64)
+                                        .build(), 1);
+            }
+            else if (aggregate <= 90 && aggregate > 70){
+                new Powerup(shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
+                                        .setSize(32, 32)
+                                        .setCollider(ColliderType.Square)
+                                        .addImage(powerupSprites[2], 64, 64)
+                                        .build(), 2);
+            }
+            this.dropRoll = true;
+        }
         if (updateSprite){
             if (this.deathAnimFrame != this.deathAnim.length-1){
                 this.deathAnimFrame++;
@@ -226,7 +281,7 @@ class Alien extends GameObject{
             PlayerBullet bullet = (PlayerBullet) collided;
             this.health -= bullet.damage;
             score++;
-            bullet.destroy();
+            if(!playerHasPowerup1) {bullet.destroy();}
         }
     }
 

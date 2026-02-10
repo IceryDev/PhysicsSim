@@ -158,6 +158,14 @@ class Mathf{
     }
 
     public int randInt(int range){
-        return (int) Math.random() * range;
+        return (int) (Math.random() * (double) range);
+    }
+
+    public Matrix createRotMatrix(float rotInRad){
+        float[][] tempArray = {{(float) Math.cos(rotInRad), (float) -Math.sin(rotInRad)}, 
+                               {(float) Math.sin(rotInRad), (float) Math.cos(rotInRad)}};
+        Matrix m = new Matrix(2, 2);
+        m.setArray(tempArray);
+        return m;
     }
 }
