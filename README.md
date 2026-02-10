@@ -132,6 +132,60 @@ class Player extends GameObject {
   }
 }
 ```
+
+### Scene Management
+- The way each set of objects are rendered is through scenes. Each scene contains its own list of shapes and game objects, and also contains components called *utilities*.
+- A default scene is already present by the name *defaultScene*.
+- By default, *defaultScene* includes all three utilities, which are:
+  - ObjectHandler: Updates each object every frame, this is the component that allows physics and motion.
+  - CollisionHandler:  Calculates the collision states and collision results of the objects in the scene.
+  - ShapeDrawer: Draws all the objects present in the scene.
+#### Creating a New Scene:
+- Use the **Scene** class to create a new scene:
+```java
+Scene exampleScene = new Scene(boolean useDefault);
+```
+- The *useDefault* parameter adds all the utilities to the scene and appends the scene to the SceneManager if set to true.
+- If aren't using a default preset, append the scene to the SceneManager using the following line of code:
+```java
+SceneManager.addScene(exampleScene);
+```
+- The ***.addScene()*** method can also take a *name* variable for custom scene names, if not provided, the name of the scene will be its index in the list of scenes within SceneManager:
+```java
+SceneManager.addScene(exampleScene, "SceneName");
+```
+
+#### Adding/Removing Utilities
+- To add a utility to a scene, it is necessary to instantiate the utility first, and then append it using the ***Scene.addHandler()*** method.
+- There can only be one of each type of utility in one scene.
+```java
+ObjectHandler oh = new ObjectHandler();
+exampleScene.addHandler(oh);
+```
+- To remove a utility from a scene, use the **UtilityType** type as following:
+```java
+exampleScene.removeHandler(UtilityType.Shapes); //ShapeDrawer
+exampleScene.removeHandler(UtilityType.Objects); //ObjectHandler
+exampleScene.removeHandler(UtilityType.Collisions); //CollisionHandler
+```
+
+#### Changing Active Scene
+- Simply use the ***SceneManager.changeScene()*** method with the scene name to switch the active scene.
+```java
+SceneManager.changeScene("SceneName");
+```
+- You can use the ***SceneManager.listScenes()*** method to print a list of scene names within your environment.
+
+#### Update Active Scene
+- Use the following line of code in the Processing draw() method as also shown at the beginning of this document.
+```java
+void draw(){
+  ...
+
+  SceneManager.updateActive();
+}
+```
+***Important:*** The instantiated objects are appended to the list of the current active scene.
 ## Full Reference:
 - This part contains most functions that each component has (excluding structural functions for the program to work)
 ### Component Hierarchy:
