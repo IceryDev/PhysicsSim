@@ -11,12 +11,10 @@
 - Use the Assets.pde file to declare custom game objects to be instantiated
 
 ### Initialise Environment:
-- To draw and update each object, we need a ShapeDrawer and if we need to handle collisions, we need a CollisionHandler
-- Both are declared as sd and ch in the BuiltIns.pde file, initialise both in the main (PhysicsSim.pde) file
+- The way that this library is built requires the usage of P3D rendering mode. Use the following line of code in the Processing setup() method with your screen size of preference.
 ```java
 void setup(){
-  ch = new CollisionHandler();
-  sd = new ShapeDrawer();
+  size(screenSizeX, screenSizeY, P3D);
 }
 ```
 - Append the following lines to (preferably) the end of the Processing draw() method
@@ -24,14 +22,9 @@ void setup(){
 void draw(){
   ...
 
-  for (int i = 0; i < gameObjects.size(); i++){
-      gameObjects.get(i).update();
-  }
-  ch.handleCollisions(objects);
-  sd.drawAll(objects);
+  SceneManager.updateActive();
 }
 ```
-- Where objects, gameObjects are lists of all the Shape2D's and GameObjects, respectively. (The for loop will also be automated in the future)
 
 ### Create a GameObject:
 - Create a class that inherits from GameObject
@@ -63,15 +56,21 @@ class Player extends GameObject {
 }
 ```
 - Now you can switch to the main file (PhysicsSim.pde) and create the object by using standard Java object creation methods within the setup() method
-- Each GameObject has to take at least one parameter of type Shape2D, which itself takes the parameters below (This will later be updated to a factory design for ease of use)
+- Each GameObject has to take at least one parameter of type Shape2D. To construct a Shape2D, use the class ShapeBuilder (one of which is already instantiated as ***shapeBuilder***) as following:
 ```java
 void setup(){
   //The last three parameters are optional, if not provided, the engine will draw the shape of the collider type specified.
   //Possible collider types: ColliderType.Square, ColliderType.Rectangle, ColliderType.Circle
-  Player player = new Player(new Shape2D(float posX, float posY, float sizeX, float sizeY,
-                              ColliderType ct, PImage img, float imgSizeX, float imgSizeY));
+  Player player = new Player(shapeBuilder.setPos(float posX, float posY)
+                                         .setSize(float sizeX, float sizeY)
+                                         .setCollider(ColliderType ct)
+                                         .addImage(PImage img, float imgSizeX, float imgSizeY)
+                                         .build());
 }
 ```
+
+- The ***.addImage()*** method is optional. If not provided, the engine will create a shape based on the collider type instead.
+
 ### GameObject Methods:
 - update(): Runs every frame, include it in your class to change behaviour
 ```java
