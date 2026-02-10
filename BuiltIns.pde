@@ -1,6 +1,5 @@
-Scene defaultScene = new Scene(true);
 ShapeBuilder shapeBuilder = new ShapeBuilder();
-SceneManager sceneManager = new SceneManager();
+Scene defaultScene = new Scene(true);
 Mathf mathf = new Mathf();
 
 class GameObject{
@@ -11,7 +10,7 @@ class GameObject{
     public GameObject(Shape2D obj){
         this.shape = obj;
         this.shape.gameObject = this;
-        this.parent = sceneManager.activeScene;
+        this.parent = SceneManager.activeScene;
         this.shape.index = this.parent.shapes.size();
         this.parent.gameObjects.add(this);
         this.parent.shapes.add(this.shape);
@@ -60,6 +59,8 @@ class Scene{
         this.addHandler(sd)
             .addHandler(ch)
             .addHandler(oh);
+        SceneManager.addScene(this);
+        if (SceneManager.activeScene == null) { SceneManager.activeScene = this; }
     }
 
     public void updateScene(){
@@ -79,26 +80,36 @@ class Scene{
     }
 }
 
-class SceneManager{
-    HashMap<String, Scene> scenes = new HashMap<>();
-    Scene activeScene = defaultScene;
+static class SceneManager{
+    static HashMap<String, Scene> scenes = new HashMap<>();
+    static Scene activeScene;
 
-    public void changeScene(String name){
-        if(!this.scenes.containsKey(name)){
+    public static void changeScene(String name){
+        if(!scenes.containsKey(name)){
             System.err.println("No such scene \"" + name + "\" exists!");
             return;
         }
-        this.activeScene = this.scenes.get(name);
+        activeScene = scenes.get(name);
     }
 
-    public void addScene(Scene scene){
-        scene.name = "" + this.scenes.size();
-        this.scenes.put(scene.name, scene);
+    public static void addScene(Scene scene){
+        scene.name = "" + scenes.size();
+        scenes.put(scene.name, scene);
     }
 
-    public void addScene(Scene scene, String name){
+    public static void addScene(Scene scene, String name){
         scene.name = name;
-        this.scenes.put(name, scene);
+        scenes.put(name, scene);
+    }
+
+    public static void listScenes(){
+        for (Scene s : scenes.values()){
+            System.out.println("Scene: " + s.name);
+        }
+    }
+
+    public static void updateActive(){
+        activeScene.updateScene();
     }
     
 }

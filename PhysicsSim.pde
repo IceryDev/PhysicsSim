@@ -67,9 +67,7 @@ void setup(){
   size(720, 720, P3D);
   noStroke();
   noSmooth();
-  
   rectMode(CENTER);
-
   loadGame();
 
   //Sprites and handler initialisation
@@ -94,8 +92,6 @@ void setup(){
   starDeco = loadImage("Stars1.png");
   pixel = createFont("Fonts/PIXSPACE-DEMO.ttf", 128);
   textFont(pixel);
-  defaultScene = new Scene(true);
-  sceneManager.addScene(defaultScene);
   sd = new ShapeDrawer();
   defaultScene.removeHandler(UtilityType.Shapes);
   gameTimer.startTimer();
@@ -139,10 +135,10 @@ void draw(){
         difficultyTimer.startTimer();
       }
 
-      sceneManager.activeScene.updateScene();
+      SceneManager.updateActive();
     }
+    sd.update(SceneManager.activeScene);
 
-    sd.update(sceneManager.activeScene);
     if (gameOver){
       fill(255, 50, 50);
       textSize(55);
