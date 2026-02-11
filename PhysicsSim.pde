@@ -43,6 +43,7 @@ PImage[] powerupSprites = new PImage[3];
 PImage playerSprite;
 PImage playerBullet;
 PImage alienBullet;
+PImage alienBullet2;
 PImage livesIcon;
 PImage starDeco;
 
@@ -94,6 +95,7 @@ void setup(){
   playerSprite = loadImage("Player.png");
   playerBullet = loadImage("BulletPlayer.png");
   alienBullet = loadImage("Bullet1.png");
+  alienBullet2 = loadImage("Bullet2.png");
   livesIcon = loadImage("PlayerLives.png");
   starDeco = loadImage("Stars1.png");
   pixel = createFont("Fonts/PIXSPACE-DEMO.ttf", 128);

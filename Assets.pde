@@ -89,6 +89,10 @@ class Player extends GameObject{
             this.powerupTimer.startTimer();
             other.destroy();
         }
+        else if (other.tag.equals("AlienLaser")){
+            AlienLaser laser = (AlienLaser) other;
+            this.lives -= laser.damage;
+        }
     }
 
 }
@@ -108,6 +112,31 @@ class AlienBullet extends GameObject {
 
     public void update(){
         if (this.shape.transform.pos.y > height){
+            this.destroy();
+        }
+    }
+}
+
+class AlienLaser extends GameObject {
+    public int damage = 1;
+    float speed = 10;
+    GameObject parent;
+    Timer lifeCycle = new Timer(40);
+
+    public AlienLaser(Shape2D obj, GameObject parent){
+        super(obj);
+        
+        this.parent = parent;
+        this.setLayer(-1);
+        this.lifeCycle.startTimer();
+        this.tag = "AlienLaser";
+        this.shape.transform.collider.isTrigger = true;
+        
+    }
+
+    public void update(){
+        this.shape.transform.pos = new Vector2D(this.parent.shape.transform.pos.x, height/2);
+        if (this.lifeCycle.updateTime()){
             this.destroy();
         }
     }
@@ -141,6 +170,10 @@ class Powerup extends GameObject{
         this.shape.transform.collider.isTrigger = true;
         this.tag = "Powerup";
         this.shape.rb.velocity.y = 10;
+    }
+
+    public void update(){
+        if (this.shape.transform.pos.y > height) { this.destroy(); }
     }
 }
 
@@ -196,6 +229,11 @@ class Alien extends GameObject{
             this.shootTimer.totalTime = (int)(Math.random() * 25) + 50;
             this.shootTimer.startTimer();
         }
+        else if (canShoot && this.alienType == 2){
+            this.shootLaser();
+            this.shootTimer.totalTime = 300;
+            this.shootTimer.startTimer();
+        }
 
         this.move();
         Transform transform = this.shape.transform;
@@ -220,6 +258,15 @@ class Alien extends GameObject{
                     .setCollider(ColliderType.Square)
                     .addImage(alienBullet, 128, 128);
         new AlienBullet(shapeBuilder.build());
+    }
+
+    @SuppressWarnings("unused")
+    public void shootLaser(){
+        shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y + 32)
+                    .setSize(32, 1024)
+                    .setCollider(ColliderType.Rectangle)
+                    .addImage(alienBullet2, 128, 1024);
+        new AlienLaser(shapeBuilder.build(), this);
     }
 
     public void move(){

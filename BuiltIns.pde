@@ -5,13 +5,14 @@ Mathf mathf = new Mathf();
 class GameObject{
     Shape2D shape;
     Scene parent;
+    protected boolean isDestroyed = false;
+    protected int layer = 0;
     String tag = "Default";
 
     public GameObject(Shape2D obj){
         this.shape = obj;
         this.shape.gameObject = this;
         this.parent = SceneManager.activeScene;
-        this.shape.index = this.parent.shapes.size();
         this.parent.gameObjects.add(this);
         this.parent.shapes.add(this.shape);
     }
@@ -30,14 +31,17 @@ class GameObject{
     @SuppressWarnings("unused")
     public void onCollisionExit(GameObject other){}
 
+    public void setLayer(int layer){
+        this.layer = layer;
+        SceneManager.activeScene.sortObjects();
+    }
+
+    public int getLayer(){
+        return this.layer;
+    }
+
     public void destroy(){
-        for (int i = 0; i < this.parent.shapes.size(); i++){
-            if (i > this.shape.index){
-                this.parent.shapes.get(i).index--;
-            }
-        }
-        this.parent.shapes.remove(this.shape.index);
-        this.parent.gameObjects.remove(this.shape.index);
+        this.isDestroyed = true;
     }
 }
 
@@ -67,6 +71,7 @@ class Scene{
         for (Utility u : handlers.values()){
             u.update(this);
         }
+        this.cleanup();
     }
 
     public Scene addHandler(Utility u){
@@ -77,6 +82,20 @@ class Scene{
     public Scene removeHandler(UtilityType key) {
         this.handlers.remove(key);
         return this;
+    }
+
+    private void cleanup(){
+        for (int i = this.gameObjects.size() - 1; i >= 0; i--){
+            if (this.gameObjects.get(i).isDestroyed) {
+                this.gameObjects.remove(i);
+                this.shapes.remove(i);
+            }
+        }
+    }
+
+    protected void sortObjects(){
+        shapes.sort((Shape2D a, Shape2D b) -> Integer.compare(a.gameObject.layer, b.gameObject.layer));
+        gameObjects.sort((GameObject a, GameObject b) -> Integer.compare(a.layer, b.layer));
     }
 }
 

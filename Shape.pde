@@ -21,7 +21,6 @@ class Shape2D {
 
     //GameObject Properties
     public GameObject gameObject;
-    public int index;
     
     public Shape2D(float posX, float posY, float sizeX, float sizeY, ColliderType collider){
         this.transform = new Transform(new Vector2D(posX, posY), new Collider2D(collider), this);
