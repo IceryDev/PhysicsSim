@@ -127,6 +127,7 @@ class AlienLaser extends GameObject {
         super(obj);
         
         this.parent = parent;
+        this.setLayer(-1);
         this.lifeCycle.startTimer();
         this.tag = "AlienLaser";
         this.shape.transform.collider.isTrigger = true;
