@@ -67,7 +67,7 @@ void setup(){
                                          .build());
 }
 ```
-
+- Currently the IDE's give a unused warning for each object creation line (if the object is not used elsewhere and only instantiated). This is because its constructor adds it to the scene and every object in the scene gets updated, without the need of an additional usage of the object. You can just ignore these or use the **@SuppressWarnings("unused")** line above the method you instantiated your object in.
 - The ***.addImage()*** method is optional. If not provided, the engine will create a shape based on the collider type instead.
 
 ### GameObject Methods:
@@ -90,6 +90,17 @@ class Player extends GameObject {
   }
 }
 ```
+- setLayer(int layer): Changes the order of rendering for the object, lower values will make the object render behind the scene compared to others. Do not change the layer directly as it will not update the list of objects to render properly.
+```java
+class Player extends GameObject {
+  ...
+  public Player(Shape2D obj){
+    super(obj);
+    this.setLayer(-5);
+  }
+}
+```
+- getLayer(): Returns the layer value of the object.
 - onCollisionEnter(GameObject other): Triggers when the current object collides with a non-trigger collider, you can compare the tag of the other object to run on specific collisions
 ```java
 class Player extends GameObject {
@@ -133,7 +144,7 @@ class Player extends GameObject {
 }
 ```
 
-### Scene Management
+### Scene Management:
 - The way each set of objects are rendered is through scenes. Each scene contains its own list of shapes and game objects, and also contains components called *utilities*.
 - A default scene is already present by the name *defaultScene*.
 - By default, *defaultScene* includes all three utilities, which are:
@@ -155,7 +166,7 @@ SceneManager.addScene(exampleScene);
 SceneManager.addScene(exampleScene, "SceneName");
 ```
 
-#### Adding/Removing Utilities
+#### Adding/Removing Utilities:
 - To add a utility to a scene, it is necessary to instantiate the utility first, and then append it using the ***Scene.addHandler()*** method.
 - There can only be one of each type of utility in one scene.
 ```java
@@ -169,14 +180,14 @@ exampleScene.removeHandler(UtilityType.Objects); //ObjectHandler
 exampleScene.removeHandler(UtilityType.Collisions); //CollisionHandler
 ```
 
-#### Changing Active Scene
+#### Changing Active Scene:
 - Simply use the ***SceneManager.changeScene()*** method with the scene name to switch the active scene.
 ```java
 SceneManager.changeScene("SceneName");
 ```
 - You can use the ***SceneManager.listScenes()*** method to print a list of scene names within your environment.
 
-#### Update Active Scene
+#### Update Active Scene:
 - Use the following line of code in the Processing draw() method as also shown at the beginning of this document.
 ```java
 void draw(){
@@ -186,6 +197,26 @@ void draw(){
 }
 ```
 ***Important:*** The instantiated objects are appended to the list of the current active scene.
+### Creating Preset Shapes:
+- You can use the **ShapeBuilder** class to create preset shapes:
+- Initialise a new ShapeBuilder, do not use the built-in one, that one is made for general object creation. (I mean if you know what you are doing you can technically use that one, but it is not recommended.)
+- Populate the properties of each shape.
+- Use the ***.build()*** method to create a new shape.
+```java
+ShapeBuilder enemyPreset = new ShapeBuilder(); //Initialise
+
+void setup(){
+  ...
+
+  enemyPreset.setPos(float posX, float posY)
+             .setSize(float sizeX, float sizeY)
+             .setCollider(ColliderType ct)
+             .addImage(PImage img, float imgSizeX, float imgSizeY)
+             .build()); //Set properties
+
+  new Enemy(enemyPreset.build()); //Create the shape
+}
+```
 ## Full Reference:
 - This part contains most functions that each component has (excluding structural functions for the program to work)
 ### Component Hierarchy:
