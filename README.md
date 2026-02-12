@@ -284,6 +284,29 @@ Mathf mathf = new Mathf();
 - ***.setArray(float[][] matrix)***: Sets the array of the matrix to a clone of the given array.
 - ***.matMul(Matrix matrix)***: Multiplies the original matrix with the given matrix and returns the result as a new Matrix.
 
+#### Shape Creation:
+- The *ShapeBuilder* class contains methods to create Shape2D objects and presets.
+- Alternatively, Shape2D constructors can also be used for shape creation, which have the following signatures:
+```java
+// Draw only shape
+Shape2D example = new Shape2D(float posX, float posY, float sizeX, float sizeY, ColliderType ct);
+
+// Attach image
+Shape2D example = new Shape2D(float posX, float posY, float sizeX, float sizeY, ColliderType ct,
+                                                      PImage img, float imgSizeX, float imgSizeY);
+```
+
+- You can find the usage of the *ShapeBuilder* class in the [Create a GameObject](https://github.com/IceryDev/PhysicsSim/edit/main/README.md#create-a-gameobject) section.
+- Built-In ShapeBuilder's:
+  - ***shapeBuilder***
+- Here is a list of all the methods within the class:
+  - ***.setPos(float posX, float posY)***: Sets the coordinates of the object to be created.
+  - ***.setSize(float sizeX, float sizeY)***: Sets the size of the object to be created.
+  - ***.setCollider(ColliderType ct)***: Sets the object's collider type.
+  - ***.addImage(PImage img, float imgSizeX, float imgSizeY)***: Adds a sprite to the object and sets its size.
+  - ***.clearImage()***: Removes the image from the object to be created.
+  - ***.build()***: Returns the constructed Shape2D object.
+ 
 #### Built-Ins:
 ##### *Timer(int timer):*
 - Returns true after the given amount of frame count, must be updated each frame. Example use:
