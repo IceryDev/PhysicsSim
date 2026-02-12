@@ -112,6 +112,13 @@ class ShapeBuilder{
         return this;
     }
 
+    public ShapeBuilder clearImage(){
+        this.img = null;
+        this.imgSizeX = 1;
+        this.imgSizeY = 1;
+        return this;
+    }
+
     public Shape2D build(){
         if (sizeX <= 0 || sizeY <= 0){ 
             throw new IllegalStateException("Shape size must be positive");

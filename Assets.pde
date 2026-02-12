@@ -231,7 +231,7 @@ class Alien extends GameObject{
         }
         else if (canShoot && this.alienType == 2){
             this.shootLaser();
-            this.shootTimer.totalTime = 300;
+            this.shootTimer.totalTime = mathf.randInt(300) + 150;
             this.shootTimer.startTimer();
         }
 
