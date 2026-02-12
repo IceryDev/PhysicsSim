@@ -40,6 +40,13 @@ class Rigidbody2D {
         return new Vector2D((this.transform.pos.x) - ((width + this.transform.size.x / 2) * checkSign(this.velocity.x)), 
                               this.transform.pos.y - ((height + this.transform.size.y / 2) * checkSign(this.velocity.y)));
     }
+
+    public void rotateBody(float radians){
+        Matrix tmp = new Matrix(2, 1);
+        tmp.setVec(this.velocity, 0);
+        this.velocity = mathf.createRotMatrix(radians).matMul(tmp).getVec(0);
+        this.transform.rotateVertices(radians);
+    }
     
     private int checkSign(float x){
         if (x > 0) { return 1; }
