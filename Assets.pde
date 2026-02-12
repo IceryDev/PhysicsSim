@@ -31,7 +31,7 @@ class Player extends GameObject{
         }
         boolean shootAvailable = this.shootCooldown.updateTime();
         if (keys[2] && shootAvailable) {
-            this.shoot(this.activePowerup);
+            this.shoot((gameStage == 2) ? 0 : this.activePowerup);
             this.shootCooldown.startTimer();
         }
 
@@ -50,7 +50,7 @@ class Player extends GameObject{
     public void shoot(int type){
         
         shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
-                    .setSize(32, 32)
+                    .setSize(64, 32)
                     .setCollider(ColliderType.Square)
                     .addImage(playerBullet, 128, 128);
         
@@ -190,6 +190,8 @@ class Alien extends GameObject{
     float speed = 2;
     int direction = 1; //-1/1 -> left/right
 
+    Vector2D velocity = new Vector2D(2, 0);
+
     PImage[] deathAnim = deathSprites;
     int deathAnimFrame = -1;
     Timer frameIncrement = new Timer(5);
@@ -197,6 +199,8 @@ class Alien extends GameObject{
     Timer shootTimer = new Timer(50);
 
     Mathf mathf = new Mathf();
+
+    float currentAngle = 0;
 
     public Alien(Shape2D obj, int type){
         super(obj);
@@ -270,7 +274,28 @@ class Alien extends GameObject{
     }
 
     public void move(){
-        if (this.isDead) {return;}
+        if (this.isDead) {
+            this.shape.rb.velocity.y = 5;
+            return;
+        }
+        if (gameStage == 3){
+            return;
+        }
+        else if (gameStage == 4){
+            
+            Vector2D center = tc.shape.transform.pos;
+            this.shape.transform.pos = new Vector2D(center.x + (200 * (float)Math.cos(mathf.deg2Rad(this.currentAngle))), 
+                                                    center.y + (200 * (float)Math.sin(mathf.deg2Rad(this.currentAngle))));
+            this.currentAngle += 1;
+            return;
+        }
+        else if (gameStage == 5){
+            
+            this.shape.transform.pos.x += this.velocity.x;
+            this.shape.transform.pos.y += this.velocity.y;
+            return;
+        }
+
         if (!this.movingOnAxis){
             this.shape.transform.pos.x += this.speed * this.direction;
         }
@@ -362,5 +387,12 @@ class PlayButton extends UIElement{
             return true;
         }
         return false;
+    }
+}
+
+class TargetCircle extends GameObject{
+
+    public TargetCircle(Shape2D obj){
+        super(obj);
     }
 }

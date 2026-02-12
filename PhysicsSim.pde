@@ -54,7 +54,7 @@ PFont pixel;
 boolean onMenu = true;
 boolean gameOver = false;
 boolean gamePaused = false;
-boolean[] keys = new boolean[4];
+boolean[] keys = new boolean[5];
 boolean playerHasPowerup1 = false;
 
 //GameObjects
@@ -64,6 +64,10 @@ PlayButton pb;
 
 //Utility
 ShapeDrawer sd;
+
+//Lab Misc
+int gameStage = 0;
+TargetCircle tc;
 
 void setup(){
   //Processing stuff
@@ -127,21 +131,32 @@ void draw(){
       gamePaused = !gamePaused;
       keyPressTimer.startTimer();
     }
+    else if (keyPressAvailable && keys[4] && gameStage == 5){
+      for (GameObject o : defaultScene.gameObjects){
+        if (o.tag.equals("Alien")){
+          Alien alien = (Alien) o;
+          Matrix tmp = new Matrix(2, 1);
+          tmp.setVec(alien.velocity, 0);
+          alien.velocity = mathf.createRotMatrix(mathf.deg2Rad(90)).matMul(tmp).getVec(0);
+        }
+      }
+      keyPressTimer.startTimer();
+    }
 
     if (!gamePaused && !gameOver){
-      boolean timerTriggered = gameTimer.updateTime();
+      /*boolean timerTriggered = gameTimer.updateTime();
       if (timerTriggered){
         int alienType = Math.round(random(0, 2));
         tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[alienType], 128, 128), alienType);
         tempAlien.speed = alienSpeed;
         gameTimer.startTimer();
-      }
+      }*/
 
-      boolean difficultyIncease = difficultyTimer.updateTime();
+      /*boolean difficultyIncease = difficultyTimer.updateTime();
       if (difficultyIncease){
         increaseDifficulty();
         difficultyTimer.startTimer();
-      }
+      }*/
 
       SceneManager.updateActive();
     }
@@ -206,6 +221,7 @@ void keyPressed(){
   if (key == 'a' || key == 'A') {keys[1] = true;}
   if (key == ' ') { keys[2] = true;}
   if (key == 'p' || key == 'P') {keys[3] = true;}
+  if (key == 'v' || key == 'V') {keys[4] = true;}
 }
 
 void keyReleased(){
@@ -213,6 +229,7 @@ void keyReleased(){
   if (key == 'a' || key == 'A') {keys[1] = false;}
   if (key == ' ') {keys[2] = false;}
   if (key == 'p' || key == 'P') {keys[3] = false;}
+  if (key == 'v' || key == 'V') {keys[4] = false;}
 }
 
 void mousePressed(){
@@ -224,7 +241,48 @@ void mousePressed(){
     }
   }
   else{
-    if (!gameOver) {return;}
+    if (!gameOver) {
+      gameStage++;
+      switch(gameStage){
+        case 1:
+          for (int i = 0; i < 8; i++){
+            tempAlien = new Alien(new Shape2D(30 + (i * 90), 50, 32, 32, ColliderType.Square, alienSprites[1], 64, 64), 1);
+            tempAlien.speed = alienSpeed;
+          }
+          break;
+        case 2:
+          break;
+        case 3:
+          tc = new TargetCircle(shapeBuilder.setPos(width/2, height/2)
+                                            .setSize(30, 30)
+                                            .setCollider(ColliderType.Circle)
+                                            .clearImage()
+                                            .build());
+          tc.shape.transform.collider.isStatic = true;
+          tc.shape.transform.collider.isTrigger = true;
+          for (GameObject o : defaultScene.gameObjects){
+            if (o.tag.equals("Alien")){
+              o.destroy();
+            }
+          }
+          for (float i = 0; i < 355; i += 11.612){
+            Vector2D tmpPos = returnPos(i, 200);
+            tempAlien = new Alien(new Shape2D(tmpPos.x, tmpPos.y, 32, 32, ColliderType.Square, alienSprites[1], 64, 64), 1);
+            tempAlien.speed = alienSpeed;
+            tempAlien.currentAngle = i;
+          }
+          break;
+        case 4:
+          break;
+        case 5:
+          for (int i = 0; i < 8; i++){
+            tempAlien = new Alien(new Shape2D(30 + (i * 90), 50, 32, 32, ColliderType.Square, alienSprites[1], 64, 64), 1);
+            tempAlien.speed = alienSpeed;
+          }
+        default:
+      }
+      return;
+    }
     onMenu = true;
     saveGame();
   }
@@ -298,4 +356,10 @@ void loadGame(){
     System.out.println("An error occurred while loading game.");
     e.printStackTrace();
   }
+}
+
+Vector2D returnPos(float angles, float radius){
+  Vector2D center = tc.shape.transform.pos;
+  return new Vector2D(center.x + (radius * (float)Math.cos(mathf.deg2Rad(angles))), 
+                      center.y + (radius * (float)Math.sin(mathf.deg2Rad(angles))));
 }

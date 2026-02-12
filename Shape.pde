@@ -122,6 +122,11 @@ class ShapeBuilder{
         return (this.img == null) ? new Shape2D(this.posX, this.posY, this.sizeX, this.sizeY, this.ct) :
                 new Shape2D(this.posX, this.posY, this.sizeX, this.sizeY, this.ct, this.img, this.imgSizeX, this.imgSizeY);
     }
+
+    public ShapeBuilder clearImage(){
+        this.img = null;
+        return this;
+    }
 }
 
 class ShapeDrawer implements Utility{
