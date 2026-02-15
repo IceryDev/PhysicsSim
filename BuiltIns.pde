@@ -57,12 +57,9 @@ class Scene{
 
     public Scene(boolean useDefault){
         if (!useDefault) { return; }
-        CollisionHandler ch = new CollisionHandler();
-        ShapeDrawer sd = new ShapeDrawer();
-        ObjectHandler oh = new ObjectHandler();
-        this.addHandler(sd)
-            .addHandler(ch)
-            .addHandler(oh);
+        this.addHandler(UtilityType.Shapes)
+            .addHandler(UtilityType.Collisions)
+            .addHandler(UtilityType.Objects);
         SceneManager.addScene(this);
         if (SceneManager.activeScene == null) { SceneManager.activeScene = this; }
     }
@@ -74,7 +71,22 @@ class Scene{
         this.cleanup();
     }
 
-    public Scene addHandler(Utility u){
+    public Scene addHandler(UtilityType ut){
+        Utility u;
+        switch(ut){
+            case Shapes:
+                u = new ShapeDrawer();
+                break;
+            case Collisions:
+                u = new CollisionHandler();
+                break;
+            case Objects:
+                u = new ObjectHandler();
+                break;
+            default:
+                System.err.println("No utility type matches the type given.");
+                return this;
+        }
         this.handlers.put(u.getKey(), u);
         return this;
     }
