@@ -52,7 +52,7 @@ class Player extends GameObject{
         shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
                     .setSize(32, 32)
                     .setCollider(ColliderType.Square)
-                    .addImage(playerBullet, 128, 128);
+                    .addImage(playerBullet, 96, 96);
         
                     
         PlayerBullet p = new PlayerBullet(shapeBuilder.build());
@@ -75,6 +75,7 @@ class Player extends GameObject{
     }
 
     @Override
+    @SuppressWarnings("unused")
     public void onTriggerEnter(GameObject other){
         if (other.tag.equals("AlienBullet")){
             AlienBullet bullet = (AlienBullet) other;
@@ -83,10 +84,24 @@ class Player extends GameObject{
         }
         else if (other.tag.equals("Powerup")){
             Powerup powerup = (Powerup) other;
-            this.activePowerup = powerup.type;
-            if (this.activePowerup == 1){ playerHasPowerup1 = true; }
-            else if(this.activePowerup == 2) { this.shootCooldown.totalTime = 20; }
-            this.powerupTimer.startTimer();
+            if (powerup.type == 3){
+                int coordinateStep = (width-2*SHIELD_MARGIN)/(SHIELD_COUNT-1);
+                for (int i = 0; i < SHIELD_COUNT; i++){
+                    if (shieldIsUp[i]) {continue;}
+                    shieldIsUp[i] = true;
+                    new Shield(shapeBuilder.setPos(SHIELD_MARGIN + coordinateStep * i, 600)
+                                           .setSize(64, 16)
+                                           .setCollider(ColliderType.Rectangle)
+                                           .addImage(shieldSprites[0], 96, 96)
+                                           .build(), i);
+                }
+            }
+            else{
+                this.activePowerup = powerup.type;
+                if (this.activePowerup == 1){ playerHasPowerup1 = true; }
+                else if(this.activePowerup == 2) { this.shootCooldown.totalTime = 20; }
+                this.powerupTimer.startTimer();
+            }
             other.destroy();
         }
         else if (other.tag.equals("AlienLaser")){
@@ -95,6 +110,66 @@ class Player extends GameObject{
         }
     }
 
+}
+
+class Shield extends GameObject{
+
+    Timer shieldTimer = new Timer(500);
+    int shieldHealth = 100;
+    int shieldId = 0;
+
+    public Shield(Shape2D obj, int id){
+        super(obj);
+        this.shieldId = id;
+        this.shieldTimer.startTimer();
+    }
+
+    public void update(){
+        if(this.shieldTimer.updateTime()){
+            this.shieldHealth -= 10;
+            System.out.println("Shield no " + this.shieldId + ": " + this.shieldHealth);
+            this.checkSpriteChange();
+            this.shieldTimer.startTimer();
+        }
+
+        if(this.shieldHealth <= 0){
+            this.destroy();
+        }
+    }
+
+    private void checkSpriteChange(){
+        if (this.shieldHealth <= 70 && this.shieldHealth > 40){
+            this.shape.sr.img = shieldSprites[1];
+        }
+        else if(this.shieldHealth <= 40){
+            this.shape.sr.img = shieldSprites[2];
+        }
+    }
+
+    @Override
+    public void onTriggerEnter(GameObject other){
+        if (other.tag.equals("AlienBullet")){
+            this.shieldHealth -= 5;
+            this.checkSpriteChange();
+            other.destroy();
+        }
+        else if(other.tag.equals("AlienLaser")){
+            this.destroy();
+        }
+    }
+
+    @Override
+    public void onCollisionEnter(GameObject other){
+        if(other.tag.equals("Alien")){
+            this.destroy();
+        }
+    }
+
+    @Override
+    public void destroy(){
+        shieldIsUp[this.shieldId] = false;
+        super.destroy();
+    }
 }
 
 class AlienBullet extends GameObject {
@@ -256,7 +331,7 @@ class Alien extends GameObject{
         shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
                     .setSize(32, 32)
                     .setCollider(ColliderType.Square)
-                    .addImage(alienBullet, 128, 128);
+                    .addImage(alienBullet, 96, 96);
         new AlienBullet(shapeBuilder.build());
     }
 
@@ -265,7 +340,7 @@ class Alien extends GameObject{
         shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y + 32)
                     .setSize(32, 1024)
                     .setCollider(ColliderType.Rectangle)
-                    .addImage(alienBullet2, 128, 1024);
+                    .addImage(alienBullet2, 96, 1024);
         new AlienLaser(shapeBuilder.build(), this);
     }
 
@@ -283,29 +358,24 @@ class Alien extends GameObject{
     public void playDeathAnim(){
         boolean updateSprite = this.frameIncrement.updateTime();
         if (!this.dropRoll){
-            int aggregate = mathf.randInt(100) + (difficulty * 5);
-            System.out.println(aggregate);
-            if (aggregate > 97){
+            int aggregate = mathf.randInt(ROLL_CEIL - 16) + (difficulty * DIFFICULTY_ROLL_CONTRIBUTION);
+            int pwrType = -1;
+            for (int i = 0, remaining = ROLL_CEIL; i < usedPwrupWeight.length; i++){
+              remaining -= usedPwrupWeight[i];
+              if (aggregate > remaining){
+                pwrType = i;
+                break;
+              }
+            }
+            if (pwrType != -1) {
                 new Powerup(shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
                                         .setSize(32, 32)
                                         .setCollider(ColliderType.Square)
-                                        .addImage(powerupSprites[0], 64, 64)
-                                        .build(), 0);
+                                        .addImage(powerupSprites[pwrType], 64, 64)
+                                        .build(), pwrType);
             }
-            else if (aggregate <= 97 && aggregate > 90){
-                new Powerup(shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
-                                        .setSize(32, 32)
-                                        .setCollider(ColliderType.Square)
-                                        .addImage(powerupSprites[1], 64, 64)
-                                        .build(), 1);
-            }
-            else if (aggregate <= 90 && aggregate > 70){
-                new Powerup(shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
-                                        .setSize(32, 32)
-                                        .setCollider(ColliderType.Square)
-                                        .addImage(powerupSprites[2], 64, 64)
-                                        .build(), 2);
-            }
+            System.out.println(aggregate + "/" + ROLL_CEIL + ": " + pwrType);
+            
             this.dropRoll = true;
         }
         if (updateSprite){
