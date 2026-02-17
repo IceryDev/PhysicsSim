@@ -98,7 +98,7 @@ void setup(){
   }
 
   for (int i = 0; i < shieldSprites.length; i++){
-    shieldSprites[i] = loadImage("SpaceInvaderGame/Shield" + i + ".png");
+    shieldSprites[i] = loadImage("Assets/Shield" + i + ".png");
   }
 
   for (int i = 0; i < 15; i++){
@@ -109,24 +109,24 @@ void setup(){
     keys[i] = false;
   }
 
-  powerupSprites[0] = loadImage("SpaceInvaderGame/MultiShot.png");
-  powerupSprites[1] = loadImage("SpaceInvaderGame/PenetratingBullet.png");
-  powerupSprites[2] = loadImage("SpaceInvaderGame/FasterReload.png");
-  powerupSprites[3] = loadImage("SpaceInvaderGame/ShieldPowerup.png");
-  alienSprites[0] = loadImage("AlienShip1.png");
-  alienSprites[1] = loadImage("AlienShip3.png");
-  alienSprites[2] = loadImage("AlienShip2.png");
-  playerSprite = loadImage("Player.png");
-  playerBullet = loadImage("BulletPlayer.png");
-  alienBullet = loadImage("Bullet1.png");
-  alienBullet2 = loadImage("Bullet2.png");
-  livesIcon = loadImage("PlayerLives.png");
-  starDeco = loadImage("Stars1.png");
+  powerupSprites[0] = loadImage("Assets/MultiShot.png");
+  powerupSprites[1] = loadImage("Assets/PenetratingBullet.png");
+  powerupSprites[2] = loadImage("Assets/FasterReload.png");
+  powerupSprites[3] = loadImage("Assets/ShieldPowerup.png");
+  alienSprites[0] = loadImage("Assets/AlienShip1.png");
+  alienSprites[1] = loadImage("Assets/AlienShip3.png");
+  alienSprites[2] = loadImage("Assets/AlienShip2.png");
+  playerSprite = loadImage("Assets/Player.png");
+  playerBullet = loadImage("Assets/BulletPlayer.png");
+  alienBullet = loadImage("Assets/Bullet1.png");
+  alienBullet2 = loadImage("Assets/Bullet2.png");
+  livesIcon = loadImage("Assets/PlayerLives.png");
+  starDeco = loadImage("Assets/Stars1.png");
 
-  explodeSFX = new SoundFile(this, "SpaceInvaderGame/Sound/explosion.wav");
-  damageSFX = new SoundFile(this, "SpaceInvaderGame/Sound/hitHurt.wav");
-  shootSFX = new SoundFile(this, "SpaceInvaderGame/Sound/laserShoot.wav");
-  pwrupSFX = new SoundFile(this, "SpaceInvaderGame/Sound/powerUp.wav");
+  explodeSFX = new SoundFile(this, "Assets/Sound/explosion.wav");
+  damageSFX = new SoundFile(this, "Assets/Sound/hitHurt.wav");
+  shootSFX = new SoundFile(this, "Assets/Sound/laserShoot.wav");
+  pwrupSFX = new SoundFile(this, "Assets/Sound/powerUp.wav");
   
   pixel = createFont("Fonts/PIXSPACE-DEMO.ttf", 128);
   textFont(pixel);
@@ -338,29 +338,18 @@ void resetGame(){
 }
 
 void saveGame(){
-  try (FileWriter fw = new FileWriter(SAVE_FILE_PATH)){
-    fw.write(score);
-    System.out.println("Game Saved!");
-  }
-  catch (IOException e){
-    System.err.println("An error occurred while writing to file.");
-    e.printStackTrace();
-  }
+  saveStrings(SAVE_FILE_PATH, new String[]{ str(score) });
 }
 
 void loadGame(){
-  File saveFile = new File(SAVE_FILE_PATH);
-  if (!saveFile.exists()) { return; }
-
-  try (Scanner reader = new Scanner(saveFile)){
-    if (reader.hasNextInt()){
-      bestScore = reader.nextInt();
-      System.out.println("Game Loaded!");
-      System.out.println(bestScore);
-    }
+  File saveFile = new File(sketchPath(SAVE_FILE_PATH));
+  if (!saveFile.exists()) { 
+    println("File does not exist at: " + saveFile.getAbsolutePath());
+    return; 
   }
-  catch (FileNotFoundException e){
-    System.out.println("An error occurred while loading game.");
-    e.printStackTrace();
+
+  String[] data = loadStrings(SAVE_FILE_PATH);
+  if (data != null && data.length == 1){
+    bestScore = Integer.parseInt(data[0]);
   }
 }
