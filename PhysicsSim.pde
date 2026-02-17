@@ -12,11 +12,16 @@ final float MARGIN = 40;
 final int PLAYER_LIVES = 10;
 final float LIVES_MARGIN = 20;
 final int SPAWN_INTERVAL = 150;
-final int DIFFICULTY_INTERVAL = 1000;
+final int DIFFICULTY_INTERVAL = 1400;
 final int KEY_PRESS_INTERVAL = 20;
 final int MAX_SHIELD_SPAWN = 700;
 final String SAVE_FILE_PATH = "data.txt";
-final int[] ALIEN_SPAWN_CHANCE = {35, 55, 10};
+final int[][] ALIEN_SPAWN_CHANCE = {{20, 77, 3}, {30, 65, 5}, {45, 20, 35}, {30, 15, 55}};
+final int ROLL_CEIL = 200;
+final int[][] POWERUP_WEIGHT = {{1, 2, 20, 10}, {5, 10, 30, 25}, {15, 15, 30, 30}, {15, 20, 35, 35}};
+final int SHIELD_COUNT = 3;
+final int SHIELD_MARGIN = 100;
+final int DIFFICULTY_ROLL_CONTRIBUTION = 2;
 
 //Deco
 Vector2D[] decoPos = new Vector2D[15];
@@ -25,7 +30,7 @@ Vector2D[] decoPos = new Vector2D[15];
 Timer gameTimer = new Timer(SPAWN_INTERVAL);
 Timer difficultyTimer = new Timer(DIFFICULTY_INTERVAL);
 Timer keyPressTimer = new Timer(KEY_PRESS_INTERVAL);
-Timer shieldSpawnTimer = new Timer(MAX_SHIELD_SPAWN);
+//Timer shieldSpawnTimer = new Timer(MAX_SHIELD_SPAWN);
 
 //Score
 int score = 0;
@@ -37,19 +42,22 @@ float alienSpeedIncrement = 0.2;
 float alienMaxSpeed = 5;
 float alienSpawnMin = 30;
 float alienSpawnDecrement = 5;
+int[] usedAlienRoll = ALIEN_SPAWN_CHANCE[0];
+int[] usedPwrupWeight = POWERUP_WEIGHT[0];
 int difficulty = 0;
 
 //Sprites
 PImage[] deathSprites = new PImage[12];
 PImage[] alienSprites = new PImage[3];
-PImage[] powerupSprites = new PImage[3];
+PImage[] powerupSprites = new PImage[4];
+PImage[] shieldSprites = new PImage[SHIELD_COUNT];
 PImage playerSprite;
 PImage playerBullet;
 PImage alienBullet;
 PImage alienBullet2;
 PImage livesIcon;
 PImage starDeco;
-PImage shieldSprite;
+
 
 //Font
 PFont pixel;
@@ -60,6 +68,7 @@ boolean gameOver = false;
 boolean gamePaused = false;
 boolean[] keys = new boolean[4];
 boolean playerHasPowerup1 = false;
+boolean[] shieldIsUp = new boolean[3];
 
 //GameObjects
 Alien tempAlien;
@@ -82,6 +91,10 @@ void setup(){
     deathSprites[i] = loadImage("Explosion/Explosion" + String.format("%02d", i) + ".png");
   }
 
+  for (int i = 0; i < shieldSprites.length; i++){
+    shieldSprites[i] = loadImage("SpaceInvaderGame/Shield" + i + ".png");
+  }
+
   for (int i = 0; i < 15; i++){
     decoPos[i] = new Vector2D(random(0, 720), random(0, 720));
   }
@@ -90,9 +103,10 @@ void setup(){
     keys[i] = false;
   }
 
-  powerupSprites[0] = loadImage("MultiShot.png");
-  powerupSprites[1] = loadImage("PenetratingBullet.png");
-  powerupSprites[2] = loadImage("FasterReload.png");
+  powerupSprites[0] = loadImage("SpaceInvaderGame/MultiShot.png");
+  powerupSprites[1] = loadImage("SpaceInvaderGame/PenetratingBullet.png");
+  powerupSprites[2] = loadImage("SpaceInvaderGame/FasterReload.png");
+  powerupSprites[3] = loadImage("SpaceInvaderGame/ShieldPowerup.png");
   alienSprites[0] = loadImage("AlienShip1.png");
   alienSprites[1] = loadImage("AlienShip3.png");
   alienSprites[2] = loadImage("AlienShip2.png");
@@ -102,7 +116,7 @@ void setup(){
   alienBullet2 = loadImage("Bullet2.png");
   livesIcon = loadImage("PlayerLives.png");
   starDeco = loadImage("Stars1.png");
-  shieldSprite = loadImage("SpaceInvaderGame/Shield.png");
+  
   pixel = createFont("Fonts/PIXSPACE-DEMO.ttf", 128);
   textFont(pixel);
   sd = new ShapeDrawer();
@@ -110,15 +124,14 @@ void setup(){
   gameTimer.startTimer();
   difficultyTimer.startTimer();
   keyPressTimer.startTimer();
-  shieldSpawnTimer.startTimer();
+  //shieldSpawnTimer.startTimer();
 
   //Object Instantiation
   pb = new PlayButton(360, 450, 140, 50);
-  player = new Player(new Shape2D(50, 50, 64, 64, ColliderType.Square, playerSprite, 128, 128), PLAYER_LIVES);
+  player = new Player(new Shape2D(50, 50, 48, 48, ColliderType.Square, playerSprite, 96, 96), PLAYER_LIVES);
   
 }
 
-@SuppressWarnings("unused")
 void draw(){
   background(0);
 
@@ -139,29 +152,28 @@ void draw(){
       boolean timerTriggered = gameTimer.updateTime();
       if (timerTriggered){
         int alienRoll = mathf.randInt(100);
-        System.out.println(alienRoll);
         int alienType = 0;
-        for (int i = 0, cumulative = 0; i < ALIEN_SPAWN_CHANCE.length; i++){
-          cumulative += ALIEN_SPAWN_CHANCE[i];
+        for (int i = 0, cumulative = 0; i < usedAlienRoll.length; i++){
+          cumulative += usedAlienRoll[i];
           if (alienRoll < cumulative){
             alienType = i;
             break;
           }
         }
-        tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[alienType], 128, 128), alienType);
+        tempAlien = new Alien(new Shape2D(50, 50, 48, 48, ColliderType.Square, alienSprites[alienType], 96, 96), alienType);
         tempAlien.speed = alienSpeed;
         gameTimer.startTimer();
       }
 
-      if(shieldSpawnTimer.updateTime()){
-        new Shield(shapeBuilder.setPos(mathf.randInt(width-64) + 32, 600)
-                               .setSize(64, 16)
-                               .setCollider(ColliderType.Rectangle)
-                               .addImage(shieldSprite, 96, 96)
-                               .build());
-        shieldSpawnTimer.totalTime = mathf.randInt(MAX_SHIELD_SPAWN) + 300;
-        shieldSpawnTimer.startTimer();
-      }
+      // if(shieldSpawnTimer.updateTime()){
+      //   new Shield(shapeBuilder.setPos(mathf.randInt(width-64) + 32, 600)
+      //                          .setSize(64, 16)
+      //                          .setCollider(ColliderType.Rectangle)
+      //                          .addImage(shieldSprites[0], 96, 96)
+      //                          .build());
+      //   shieldSpawnTimer.totalTime = mathf.randInt(MAX_SHIELD_SPAWN) + 300;
+      //   shieldSpawnTimer.startTimer();
+      // }
 
       boolean difficultyIncease = difficultyTimer.updateTime();
       if (difficultyIncease){
@@ -271,6 +283,22 @@ void increaseDifficulty(){
   if (gameTimer.totalTime > alienSpawnMin){
     gameTimer.totalTime -= alienSpawnDecrement;
     difficulty++;
+  }
+
+  switch(difficulty){
+    case 2:
+      usedAlienRoll = ALIEN_SPAWN_CHANCE[1];
+      usedPwrupWeight = POWERUP_WEIGHT[1];
+      break;
+    case 4:
+      usedAlienRoll = ALIEN_SPAWN_CHANCE[2];
+      usedPwrupWeight = POWERUP_WEIGHT[2];
+      break;
+    case 7:
+      usedAlienRoll = ALIEN_SPAWN_CHANCE[3];
+      usedPwrupWeight = POWERUP_WEIGHT[3];
+      break;
+    default:
   }
   
   
