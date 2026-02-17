@@ -1,5 +1,11 @@
 # Physics Sim
 - A physics simulator/game engine to facilitate my work in my Programming Project module. It uses Processing hence Java and the naming conventions and object hierarchies are highly inspired from the Unity game engine.
+
+## Contents:
+- (Functions)[https://github.com/IceryDev/PhysicsSim/edit/main/README.md#functions]
+- (How to Use)[https://github.com/IceryDev/PhysicsSim/edit/main/README.md#how-to-use]
+- (Examples)[https://github.com/IceryDev/PhysicsSim/edit/main/README.md#examples]
+
 ## Functions:
 - Rigidbodies that support linear and angular motion (although torque has not been implemented yet)
 - Separating Axis Theorem (SAT) collision detection and calculations for elastic/inelastic (or in between) collision results (collisions for now apply to rectangles and circles)
@@ -326,5 +332,10 @@ void draw(){
 }
 ...
 ```
+
+## Examples:
+- To run examples, you have to clone the repository branch corresponding to the example you want to run. Current examples:
+  - Space Invaders (space-invaders): Simple space invaders game. Dependencies: Processing Sound Library (See branch README.md within the "data" folder.)
+  - Labs (lab-03, lab-04): These are not exactly examples, but rather my attempt at the tasks that were outlined during our Programming Project module labs.
 
 **Note: This documentation is still work in progress.**
