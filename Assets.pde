@@ -49,6 +49,7 @@ class Player extends GameObject{
 
     public void shoot(int type){
         
+        shootSFX.play();
         shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
                     .setSize(32, 32)
                     .setCollider(ColliderType.Square)
@@ -80,9 +81,11 @@ class Player extends GameObject{
         if (other.tag.equals("AlienBullet")){
             AlienBullet bullet = (AlienBullet) other;
             this.lives -= bullet.damage;
+            damageSFX.play();
             other.destroy();
         }
         else if (other.tag.equals("Powerup")){
+            pwrupSFX.play();
             Powerup powerup = (Powerup) other;
             if (powerup.type == 3){
                 int coordinateStep = (width-2*SHIELD_MARGIN)/(SHIELD_COUNT-1);
@@ -106,6 +109,7 @@ class Player extends GameObject{
         }
         else if (other.tag.equals("AlienLaser")){
             AlienLaser laser = (AlienLaser) other;
+            damageSFX.play();
             this.lives -= laser.damage;
         }
     }
@@ -155,6 +159,12 @@ class Shield extends GameObject{
         }
         else if(other.tag.equals("AlienLaser")){
             this.destroy();
+        }
+        else if(other.tag.equals("Bullet")){
+            this.shieldHealth -= 5;
+            this.checkSpriteChange();
+            PlayerBullet o = (PlayerBullet) other;
+            o.reduceSpeed(5);
         }
     }
 
@@ -235,6 +245,10 @@ class PlayerBullet extends GameObject{
             this.destroy();
         }
     }
+
+    public void reduceSpeed(float val){
+        this.shape.rb.velocity.y += val;
+    }
 }
 
 class Powerup extends GameObject{
@@ -292,6 +306,7 @@ class Alien extends GameObject{
                 this.deathAnimFrame++;
                 this.playDeathAnim();
                 this.frameIncrement.startTimer();
+                explodeSFX.play();
             }
             return;
         }

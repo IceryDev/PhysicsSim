@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.File;
+import processing.sound.*;
 
 //Constants
 final float MARGIN = 40;
@@ -58,6 +59,11 @@ PImage alienBullet2;
 PImage livesIcon;
 PImage starDeco;
 
+//Sounds
+SoundFile explodeSFX;
+SoundFile shootSFX;
+SoundFile damageSFX;
+SoundFile pwrupSFX;
 
 //Font
 PFont pixel;
@@ -116,6 +122,11 @@ void setup(){
   alienBullet2 = loadImage("Bullet2.png");
   livesIcon = loadImage("PlayerLives.png");
   starDeco = loadImage("Stars1.png");
+
+  explodeSFX = new SoundFile(this, "SpaceInvaderGame/Sound/explosion.wav");
+  damageSFX = new SoundFile(this, "SpaceInvaderGame/Sound/hitHurt.wav");
+  shootSFX = new SoundFile(this, "SpaceInvaderGame/Sound/laserShoot.wav");
+  pwrupSFX = new SoundFile(this, "SpaceInvaderGame/Sound/powerUp.wav");
   
   pixel = createFont("Fonts/PIXSPACE-DEMO.ttf", 128);
   textFont(pixel);
