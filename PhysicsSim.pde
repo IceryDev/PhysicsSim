@@ -14,7 +14,9 @@ final float LIVES_MARGIN = 20;
 final int SPAWN_INTERVAL = 150;
 final int DIFFICULTY_INTERVAL = 1000;
 final int KEY_PRESS_INTERVAL = 20;
+final int MAX_SHIELD_SPAWN = 700;
 final String SAVE_FILE_PATH = "data.txt";
+final int[] ALIEN_SPAWN_CHANCE = {35, 55, 10};
 
 //Deco
 Vector2D[] decoPos = new Vector2D[15];
@@ -23,6 +25,7 @@ Vector2D[] decoPos = new Vector2D[15];
 Timer gameTimer = new Timer(SPAWN_INTERVAL);
 Timer difficultyTimer = new Timer(DIFFICULTY_INTERVAL);
 Timer keyPressTimer = new Timer(KEY_PRESS_INTERVAL);
+Timer shieldSpawnTimer = new Timer(MAX_SHIELD_SPAWN);
 
 //Score
 int score = 0;
@@ -46,6 +49,7 @@ PImage alienBullet;
 PImage alienBullet2;
 PImage livesIcon;
 PImage starDeco;
+PImage shieldSprite;
 
 //Font
 PFont pixel;
@@ -98,6 +102,7 @@ void setup(){
   alienBullet2 = loadImage("Bullet2.png");
   livesIcon = loadImage("PlayerLives.png");
   starDeco = loadImage("Stars1.png");
+  shieldSprite = loadImage("SpaceInvaderGame/Shield.png");
   pixel = createFont("Fonts/PIXSPACE-DEMO.ttf", 128);
   textFont(pixel);
   sd = new ShapeDrawer();
@@ -105,6 +110,7 @@ void setup(){
   gameTimer.startTimer();
   difficultyTimer.startTimer();
   keyPressTimer.startTimer();
+  shieldSpawnTimer.startTimer();
 
   //Object Instantiation
   pb = new PlayButton(360, 450, 140, 50);
@@ -112,6 +118,7 @@ void setup(){
   
 }
 
+@SuppressWarnings("unused")
 void draw(){
   background(0);
 
@@ -131,10 +138,29 @@ void draw(){
     if (!gamePaused && !gameOver){
       boolean timerTriggered = gameTimer.updateTime();
       if (timerTriggered){
-        int alienType = Math.round(random(0, 2));
+        int alienRoll = mathf.randInt(100);
+        System.out.println(alienRoll);
+        int alienType = 0;
+        for (int i = 0, cumulative = 0; i < ALIEN_SPAWN_CHANCE.length; i++){
+          cumulative += ALIEN_SPAWN_CHANCE[i];
+          if (alienRoll < cumulative){
+            alienType = i;
+            break;
+          }
+        }
         tempAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, alienSprites[alienType], 128, 128), alienType);
         tempAlien.speed = alienSpeed;
         gameTimer.startTimer();
+      }
+
+      if(shieldSpawnTimer.updateTime()){
+        new Shield(shapeBuilder.setPos(mathf.randInt(width-64) + 32, 600)
+                               .setSize(64, 16)
+                               .setCollider(ColliderType.Rectangle)
+                               .addImage(shieldSprite, 96, 96)
+                               .build());
+        shieldSpawnTimer.totalTime = mathf.randInt(MAX_SHIELD_SPAWN) + 300;
+        shieldSpawnTimer.startTimer();
       }
 
       boolean difficultyIncease = difficultyTimer.updateTime();

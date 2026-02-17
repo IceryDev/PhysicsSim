@@ -97,6 +97,47 @@ class Player extends GameObject{
 
 }
 
+class Shield extends GameObject{
+
+    Timer shieldTimer = new Timer(100);
+    int shieldHealth = 100;
+
+    public Shield(Shape2D obj){
+        super(obj);
+        this.shieldTimer.startTimer();
+    }
+
+    public void update(){
+        if(this.shieldTimer.updateTime()){
+            this.shieldHealth -= 10;
+            //Add other sprites here
+        }
+
+        if(this.shieldHealth <= 0){
+            this.destroy();
+        }
+    }
+
+    @Override
+    public void onTriggerEnter(GameObject other){
+        if (other.tag.equals("AlienBullet")){
+            this.shieldHealth -= 5;
+            other.destroy();
+        }
+        else if(other.tag.equals("AlienLaser")){
+            other.destroy();
+            this.destroy();
+        }
+    }
+
+    @Override
+    public void onCollisionEnter(GameObject other){
+        if(other.tag.equals("Alien")){
+            this.destroy();
+        }
+    }
+}
+
 class AlienBullet extends GameObject {
     public int damage = 1;
     float speed = 15;
@@ -284,7 +325,7 @@ class Alien extends GameObject{
         boolean updateSprite = this.frameIncrement.updateTime();
         if (!this.dropRoll){
             int aggregate = mathf.randInt(100) + (difficulty * 5);
-            System.out.println(aggregate);
+            //System.out.println(aggregate);
             if (aggregate > 97){
                 new Powerup(shapeBuilder.setPos(this.shape.transform.pos.x, this.shape.transform.pos.y)
                                         .setSize(32, 32)
