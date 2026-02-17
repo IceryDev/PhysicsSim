@@ -2,9 +2,9 @@
 - A physics simulator/game engine to facilitate my work in my Programming Project module. It uses Processing hence Java and the naming conventions and object hierarchies are highly inspired from the Unity game engine.
 
 ## Contents:
-- (Functions)[https://github.com/IceryDev/PhysicsSim/edit/main/README.md#functions]
-- (How to Use)[https://github.com/IceryDev/PhysicsSim/edit/main/README.md#how-to-use]
-- (Examples)[https://github.com/IceryDev/PhysicsSim/edit/main/README.md#examples]
+- [Functions](https://github.com/IceryDev/PhysicsSim/edit/main/README.md#functions)
+- [How to Use](https://github.com/IceryDev/PhysicsSim/edit/main/README.md#how-to-use)
+- [Examples](https://github.com/IceryDev/PhysicsSim/edit/main/README.md#examples)
 
 ## Functions:
 - Rigidbodies that support linear and angular motion (although torque has not been implemented yet)
