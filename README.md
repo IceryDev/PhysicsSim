@@ -4,6 +4,30 @@
 ## Contents:
 - [Functions](#functions)
 - [How to Use](#how-to-use)
+  - [Initialise Environment](#initialise-environment)
+  - [Create a GameObject](#create-a-gameobject)
+  - [GameObject Methods](#gameobject-methods)
+  - [Scene Management](#scene-management)
+    - [Creating a New Scene](#creating-a-new-scene)
+    - [Adding/Removing Utilities](#addingremoving-utilities)
+    - [Changing Active Scene](#changing-active-scene)
+    - [Update Active Scene](#update-active-scene)
+  - [Creating Preset Shapes](#creating-preset-shapes)
+- [Full Reference](#full-reference)
+  - [Component Hierarchy](#component-hierarchy)
+    - [Shape](#shape-shape2d-can-be-accessed-as-gameobjectshape)
+    - [Transform](#transform-can-be-accessed-as-gameobjectshapetransform)
+    - [Rigidbody](#rigidbody-rigidbody2d-can-be-accessed-as-gameobjectshaperb)
+    - [Sprite Renderer](#sprite-renderer-can-be-accessed-as-gameobjectshapesr)
+    - [Collider](#collider-collider2d-can-be-accessed-as-gameobjectshapetransformcollider)
+  - [Tools](#tools)
+    - [Linear Algebra](#linear-algebra)
+      - [Mathf](#mathf-can-be-accessed-as-mathf)
+      - [Vector2D](#vector2dfloat-x-float-y)
+      - [Matrix](#matrixint-rows-int-columns)
+    - [Shape Creation](#shape-creation)
+    - [Built-ins](#built-ins)
+      - [Timer](#timerint-timer)
 - [Examples](#examples)
 
 ## Functions:
@@ -334,8 +358,10 @@ void draw(){
 ```
 
 ## Examples:
-- To run examples, you have to clone the repository branch corresponding to the example you want to run. Current examples:
-  - Space Invaders (space-invaders): Simple space invaders game. Dependencies: Processing Sound Library (See branch README.md within the "data" folder.)
+- To run examples, you can clone the repository branch corresponding to the example you want to run, or you can download the corresponding example from the *releases* tab. The former is recommended if you want to analyse the code for yourself. Current examples:
+  - Space Invaders (space-invaders): Simple space invaders game.
+    - Dependencies: Processing Sound Library (See branch README.md within the "data" folder.)
+    - Contains: Save files, collision tags, timers, triggers, and more.
   - Labs (lab-03, lab-04): These are not exactly examples, but rather my attempt at the tasks that were outlined during our Programming Project module labs.
 
 **Note: This documentation is still work in progress.**
