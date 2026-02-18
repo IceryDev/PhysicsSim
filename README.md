@@ -326,7 +326,7 @@ Shape2D example = new Shape2D(float posX, float posY, float sizeX, float sizeY, 
                                                       PImage img, float imgSizeX, float imgSizeY);
 ```
 
-- You can find the usage of the *ShapeBuilder* class in the [Create a GameObject](https://github.com/IceryDev/PhysicsSim/edit/main/README.md#create-a-gameobject) section.
+- You can find the usage of the *ShapeBuilder* class in the [Create a GameObject](#create-a-gameobject) section.
 - Built-In ShapeBuilder's:
   - ***shapeBuilder***
 - Here is a list of all the methods within the class:
