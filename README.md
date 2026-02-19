@@ -76,8 +76,9 @@ class Player extends GameObject {
 - (Optional) You can also change the tag of the GameObject or add new attributes
 ```java
 class Player extends GameObject {
+  int lives;
 
-  public Player(Shape2D obj){
+  public Player(Shape2D obj, int lives){
       super(obj);
       this.lives = lives;
       this.tag = "Player";
@@ -99,6 +100,7 @@ void setup(){
 ```
 - Currently the IDE's give a unused warning for each object creation line (if the object is not used elsewhere and only instantiated). This is because its constructor adds it to the scene and every object in the scene gets updated, without the need of an additional usage of the object. You can just ignore these or use the **@SuppressWarnings("unused")** line above the method you instantiated your object in.
 - The ***.addImage()*** method is optional. If not provided, the engine will create a shape based on the collider type instead.
+- If the builder already contains an image and you want the next shape created to be a built-in shape, clear the image using the ***.clearImage()*** method.
 
 ### GameObject Methods:
 - update(): Runs every frame, include it in your class to change behaviour
@@ -197,11 +199,12 @@ SceneManager.addScene(exampleScene, "SceneName");
 ```
 
 #### Adding/Removing Utilities:
-- To add a utility to a scene, it is necessary to instantiate the utility first, and then append it using the ***Scene.addHandler()*** method.
+- To add a utility to a scene, append the utility using the ***Scene.addHandler()*** method, which takes the **UtilityType** of the corresponding utility.
 - There can only be one of each type of utility in one scene.
 ```java
-ObjectHandler oh = new ObjectHandler();
-exampleScene.addHandler(oh);
+exampleScene.addHandler(UtilityType.Shapes); //ShapeDrawer
+exampleScene.addHandler(UtilityType.Objects); //ObjectHandler
+exampleScene.addHandler(UtilityType.Collisions); //CollisionHandler
 ```
 - To remove a utility from a scene, use the **UtilityType** type as following:
 ```java
@@ -358,10 +361,10 @@ void draw(){
 ```
 
 ## Examples:
-- To run examples, you can clone the repository branch corresponding to the example you want to run, or you can download the corresponding example from the *releases* tab. The former is recommended if you want to analyse the code for yourself. Current examples:
+- To run examples, you can clone the repository branch corresponding to the example you want to run, or you can download the corresponding example from the [Releases](https://github.com/IceryDev/PhysicsSim/releases) tab. The former is recommended if you want to analyse the code for yourself. Current examples:
   - Space Invaders (space-invaders): Simple space invaders game.
     - Dependencies: Processing Sound Library (See branch README.md within the "data" folder.)
     - Contains: Save files, collision tags, timers, triggers, and more.
-  - Labs (lab-03, lab-04): These are not exactly examples, but rather my attempt at the tasks that were outlined during our Programming Project module labs.
+  - Labs (lab-03, lab-04, lab-05): These are not exactly examples, but rather my attempt at the tasks that were outlined during our Programming Project module labs.
 
 **Note: This documentation is still work in progress.**
