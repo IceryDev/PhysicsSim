@@ -10,17 +10,17 @@ import processing.sound.*;
 
 //Constants
 final float MARGIN = 40;
-final int PLAYER_LIVES = 10;
+final int PLAYER_LIVES = 20;
 final float LIVES_MARGIN = 20;
 final int SPAWN_INTERVAL = 150;
 final int DIFFICULTY_INTERVAL = 1400;
 final int KEY_PRESS_INTERVAL = 20;
 final int MAX_SHIELD_SPAWN = 700;
 final String SAVE_FILE_PATH = "data.txt";
-final int[][] ALIEN_SPAWN_CHANCE = {{20, 77, 3}, {30, 65, 5}, {45, 20, 35}, {30, 15, 55}};
+final int[][] ALIEN_SPAWN_CHANCE = {{20, 75, 5}, {30, 65, 5}, {45, 20, 35}, {30, 15, 55}};
 final int ROLL_CEIL = 200;
-final int[][] POWERUP_WEIGHT = {{1, 2, 20, 10}, {5, 10, 30, 25}, {15, 15, 30, 30}, {15, 20, 35, 35}};
-final int SHIELD_COUNT = 3;
+final int[][] POWERUP_WEIGHT = {{1, 2, 20, 100}, {5, 10, 30, 25}, {15, 15, 30, 30}, {15, 20, 35, 35}};
+final int SHIELD_COUNT = 2;
 final int SHIELD_MARGIN = 100;
 final int DIFFICULTY_ROLL_CONTRIBUTION = 2;
 
@@ -51,13 +51,14 @@ int difficulty = 0;
 PImage[] deathSprites = new PImage[12];
 PImage[] alienSprites = new PImage[3];
 PImage[] powerupSprites = new PImage[4];
-PImage[] shieldSprites = new PImage[SHIELD_COUNT];
+PImage[] shieldSprites = new PImage[3];
 PImage playerSprite;
 PImage playerBullet;
 PImage alienBullet;
 PImage alienBullet2;
 PImage livesIcon;
 PImage starDeco;
+PImage[] bossSprites = new PImage[2];
 
 //Sounds
 SoundFile explodeSFX;
@@ -74,12 +75,17 @@ boolean gameOver = false;
 boolean gamePaused = false;
 boolean[] keys = new boolean[4];
 boolean playerHasPowerup1 = false;
-boolean[] shieldIsUp = new boolean[3];
+boolean[] shieldIsUp = new boolean[SHIELD_COUNT];
+boolean bossInGame = false;
+boolean bossCreated = false;
+boolean victory = false;
 
 //GameObjects
 Alien tempAlien;
+Alien bossAlien;
 Player player;
 PlayButton pb;
+Shield[] shields = new Shield[SHIELD_COUNT];
 
 //Utility
 ShapeDrawer sd;
@@ -122,6 +128,8 @@ void setup(){
   alienBullet2 = loadImage("Assets/Bullet2.png");
   livesIcon = loadImage("Assets/PlayerLives.png");
   starDeco = loadImage("Assets/Stars1.png");
+  bossSprites[0] = loadImage("Assets/Boss/boss0.png");
+  bossSprites[1] = loadImage("Assets/Boss/boss1.png");
 
   explodeSFX = new SoundFile(this, "Assets/Sound/explosion.wav");
   damageSFX = new SoundFile(this, "Assets/Sound/hitHurt.wav");
@@ -159,21 +167,43 @@ void draw(){
       keyPressTimer.startTimer();
     }
 
-    if (!gamePaused && !gameOver){
-      boolean timerTriggered = gameTimer.updateTime();
-      if (timerTriggered){
-        int alienRoll = mathf.randInt(100);
-        int alienType = 0;
-        for (int i = 0, cumulative = 0; i < usedAlienRoll.length; i++){
-          cumulative += usedAlienRoll[i];
-          if (alienRoll < cumulative){
-            alienType = i;
-            break;
+    if (!gamePaused && !gameOver && !victory){
+      if (!bossInGame){
+        boolean timerTriggered = gameTimer.updateTime();
+        if (timerTriggered){
+          int alienRoll = mathf.randInt(100);
+          int alienType = 0;
+          for (int i = 0, cumulative = 0; i < usedAlienRoll.length; i++){
+            cumulative += usedAlienRoll[i];
+            if (alienRoll < cumulative){
+              alienType = i;
+              break;
+            }
           }
+          tempAlien = new Alien(new Shape2D(50, 50, 48, 48, ColliderType.Square, alienSprites[alienType], 96, 96), alienType);
+          tempAlien.speed = (alienType == 1) ? alienSpeed + 1 : alienSpeed;
+          tempAlien.shape.transform.collider.isTrigger = true;
+          gameTimer.startTimer();
         }
-        tempAlien = new Alien(new Shape2D(50, 50, 48, 48, ColliderType.Square, alienSprites[alienType], 96, 96), alienType);
-        tempAlien.speed = alienSpeed;
-        gameTimer.startTimer();
+
+        if (score > 30) {
+          bossInGame = true;
+        }
+      }
+      else if(!bossCreated){
+          bossAlien = new Alien(new Shape2D(50, 50, 64, 64, ColliderType.Square, bossSprites[0], 128, 128), true);
+          bossAlien.shape.transform.collider.isTrigger = true;
+          gameTimer.startTimer();
+          bossCreated = true;
+      }
+      else {
+        fill(255);
+        text("Big Bob", width/2, 20);
+        fill(150);
+        rect(width/2, 50, 200, 50);
+        fill(255, 0, 0);
+        int rectWidth = 18 * bossAlien.health;
+        rect(width/2 - (180-(rectWidth))/2, 50, rectWidth, 40);
       }
 
       // if(shieldSpawnTimer.updateTime()){
@@ -217,12 +247,30 @@ void draw(){
       text("Press P to continue.", 360, 400);
       textAlign(LEFT);
     }
+    else if (victory){
+      fill(50, 255, 255);
+      textSize(55);
+      textAlign(CENTER);
+      text("VICTORY", 360, 360);
+      textSize(25);
+      text("Press any key to return to menu.", 360, 400);
+      textAlign(LEFT);
+    }
 
     fill(255, 255, 255);
     textSize(20);
     textAlign(LEFT);
     text("SCORE: " + score, LIVES_MARGIN - 7.5, 665);
     text("DIFFICULTY: " + difficulty, LIVES_MARGIN - 7.5, 685);
+
+    for (int i = 0; i < shields.length; i++){
+      if (shields[i] != null){
+        fill(255);
+        textSize(20);
+        textAlign(LEFT);
+        text("Shield " + i + " health: " + shields[i].shieldHealth, LIVES_MARGIN - 7.5, 640 - i * 20);
+      }
+    }
 
     for (int i = 0; i < player.lives; i++){
       imageMode(CENTER);
@@ -273,7 +321,7 @@ void mousePressed(){
     }
   }
   else{
-    if (!gameOver) {return;}
+    if (!gameOver && !victory) {return;}
     onMenu = true;
     saveGame();
   }
@@ -329,6 +377,9 @@ void resetGame(){
   onMenu = false;
   gameOver = false;
   gamePaused = false;
+  victory = false;
+  bossInGame = false;
+  bossCreated = false;
   player.isAlive = true;
 
   difficultyTimer.startTimer();

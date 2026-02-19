@@ -29,7 +29,10 @@ class CollisionHandler implements Utility{
             Collider2D colA = collision.collidedObjects[0].collider;
             Collider2D colB = collision.collidedObjects[1].collider;
             if (!prevCollisions.contains(collision)){
-                if (colA.isTrigger && colB.isTrigger) { continue; }
+                if (colA.isTrigger && colB.isTrigger) { 
+                    objB.onTriggerEnter(objA);
+                    objA.onTriggerEnter(objB);
+                }
                 else if (colA.isTrigger) { objB.onTriggerEnter(objA); }
                 else if (colB.isTrigger) { objA.onTriggerEnter(objB); }
                 else {

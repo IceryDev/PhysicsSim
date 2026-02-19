@@ -88,11 +88,15 @@ class Player extends GameObject{
             pwrupSFX.play();
             Powerup powerup = (Powerup) other;
             if (powerup.type == 3){
-                int coordinateStep = (width-2*SHIELD_MARGIN)/(SHIELD_COUNT-1);
+                //int coordinateStep = (width-2*SHIELD_MARGIN)/(SHIELD_COUNT-1);
                 for (int i = 0; i < SHIELD_COUNT; i++){
-                    if (shieldIsUp[i]) {continue;}
+                    if (shieldIsUp[i]) {
+                        shields[i].shieldHealth = (shields[i].shieldHealth > 90) ? 100 : shields[i].shieldHealth + 10;
+                        shields[i].checkSpriteChange();
+                        continue;
+                    }
                     shieldIsUp[i] = true;
-                    new Shield(shapeBuilder.setPos(SHIELD_MARGIN + coordinateStep * i, 600)
+                    new Shield(shapeBuilder.setPos(width/2 + mathf.randInt(100) - 50, 500 + (i*100))
                                            .setSize(64, 16)
                                            .setCollider(ColliderType.Rectangle)
                                            .addImage(shieldSprites[0], 96, 96)
@@ -121,14 +125,21 @@ class Shield extends GameObject{
     Timer shieldTimer = new Timer(500);
     int shieldHealth = 100;
     int shieldId = 0;
+    float speed = 2;
 
     public Shield(Shape2D obj, int id){
         super(obj);
         this.shieldId = id;
+        shields[id] = this;
         this.shieldTimer.startTimer();
     }
 
     public void update(){
+        if ((this.shape.transform.pos.x > width - this.shape.transform.size.x/2 && mathf.checkSign(this.speed) == 1) ||
+            (this.shape.transform.pos.x < this.shape.transform.size.x/2 && mathf.checkSign(this.speed) == -1)){
+                this.speed *= -1;
+            }
+        this.shape.rb.velocity.x = this.speed;
         if(this.shieldTimer.updateTime()){
             this.shieldHealth -= 10;
             System.out.println("Shield no " + this.shieldId + ": " + this.shieldHealth);
@@ -148,6 +159,9 @@ class Shield extends GameObject{
         else if(this.shieldHealth <= 40){
             this.shape.sr.img = shieldSprites[2];
         }
+        else {
+            this.shape.sr.img = shieldSprites[0];
+        }
     }
 
     @Override
@@ -155,7 +169,13 @@ class Shield extends GameObject{
         if (other.tag.equals("AlienBullet")){
             this.shieldHealth -= 5;
             this.checkSpriteChange();
-            other.destroy();
+            AlienBullet o = (AlienBullet) other;
+            if (this.shieldHealth > 40){
+                other.destroy();
+            } 
+            else {
+                o.damage = 1;
+            }
         }
         else if(other.tag.equals("AlienLaser")){
             this.destroy();
@@ -172,18 +192,21 @@ class Shield extends GameObject{
     public void onCollisionEnter(GameObject other){
         if(other.tag.equals("Alien")){
             this.destroy();
+            Alien o = (Alien) other;
+            o.isDead = true;
         }
     }
 
     @Override
     public void destroy(){
         shieldIsUp[this.shieldId] = false;
+        shields[this.shieldId] = null;
         super.destroy();
     }
 }
 
 class AlienBullet extends GameObject {
-    public int damage = 1;
+    public int damage = 2;
     float speed = 15;
 
     public AlienBullet(Shape2D obj){
@@ -241,7 +264,7 @@ class PlayerBullet extends GameObject{
     }
 
     public void update(){
-        if (this.shape.transform.pos.y < 0){
+        if (this.shape.transform.pos.y < -10){
             this.destroy();
         }
     }
@@ -278,12 +301,15 @@ class Alien extends GameObject{
     float targetY;
     float speed = 2;
     int direction = 1; //-1/1 -> left/right
+    boolean isBoss = false;
+    int shots = 0;
 
     PImage[] deathAnim = deathSprites;
     int deathAnimFrame = -1;
     Timer frameIncrement = new Timer(5);
 
     Timer shootTimer = new Timer(50);
+    Timer rapidTimer = new Timer(2);
 
     Mathf mathf = new Mathf();
 
@@ -293,7 +319,25 @@ class Alien extends GameObject{
         this.tag = "Alien";
         this.shootTimer.startTimer();
         this.targetY = obj.transform.pos.y + (obj.transform.size.y + GAP);
+        switch (this.alienType){
+            case 2:
+                this.health = 2;
+                break;
+            default:
+        }
         
+    }
+
+    @SuppressWarnings("unused")
+    public Alien(Shape2D obj, boolean isBoss){
+        super(obj);
+        this.alienType = -1;
+        this.tag = "Alien";
+        this.shootTimer.startTimer();
+        this.rapidTimer.startTimer();
+        this.isBoss = true;
+        this.targetY = obj.transform.pos.y + (obj.transform.size.y + GAP);
+        this.health = 10;
     }
 
     public void update(){
@@ -323,6 +367,20 @@ class Alien extends GameObject{
             this.shootLaser();
             this.shootTimer.totalTime = mathf.randInt(300) + 150;
             this.shootTimer.startTimer();
+        }
+        else if (canShoot && this.isBoss){
+            boolean rapidShoot = this.rapidTimer.updateTime();
+            if (rapidShoot){
+                this.shoot();
+                this.shots++;
+                this.rapidTimer.startTimer();
+            }
+
+            if (shots > 5){
+                this.shootTimer.totalTime = 20;
+                this.shootTimer.startTimer();
+                this.shots = 0;
+            }
         }
 
         this.move();
@@ -400,6 +458,7 @@ class Alien extends GameObject{
                 this.frameIncrement.startTimer();
             }
             else{
+                if (this.isBoss) {victory = true;}
                 this.destroy();
             }
             
@@ -413,7 +472,7 @@ class Alien extends GameObject{
             PlayerBullet bullet = (PlayerBullet) collided;
             this.health -= bullet.damage;
             score++;
-            if(!playerHasPowerup1) {bullet.destroy();}
+            if(!playerHasPowerup1 && !this.isDead) {bullet.destroy();}
         }
     }
 
