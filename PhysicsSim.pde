@@ -186,7 +186,7 @@ void draw(){
           gameTimer.startTimer();
         }
 
-        if (score > 30) {
+        if (score > 100) {
           bossInGame = true;
         }
       }
