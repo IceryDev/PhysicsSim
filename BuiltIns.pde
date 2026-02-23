@@ -46,10 +46,53 @@ class GameObject{
 }
 
 class UIElement{
-    //Functionality to come here. :)
+    public boolean enabled = true;
+    Vector2D pos = new Vector2D(0, 0);
+    Vector2D size = new Vector2D(1, 1);
+
+    public UIElement setPos(float x, float y){
+        this.pos = new Vector2D(x, y);
+        return this;
+    }
+
+    public UIElement setSize(float x, float y){
+        this.size = new Vector2D(x, y);
+        return this;
+    }
+}
+
+abstract class Button extends UIElement{
+    
+    boolean hasOutline = false;
+    String text;
+
+    public Button(){
+
+    }
+
+    public void onClick(){
+
+    }
+}
+
+class Canvas{
+    ArrayList<UIElement> elements = new ArrayList<>();
+    Vector2D defaultElementSize;
+
+    public void addElement(UIElement e){
+        if (e == null) { return; }
+        this.elements.add(e);
+    }
+
+    public void setDefaultElementSize(float sizeX, float sizeY){
+
+    }
+
+
 }
 
 class Scene{
+    Canvas sceneCanvas;
     ArrayList<Shape2D> shapes = new ArrayList<>();
     ArrayList<GameObject> gameObjects = new ArrayList<>();
     HashMap<UtilityType, Utility> handlers = new HashMap<>();
