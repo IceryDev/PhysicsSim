@@ -49,6 +49,18 @@ class UIElement{
     public boolean enabled = true;
     Vector2D pos = new Vector2D(0, 0);
     Vector2D size = new Vector2D(1, 1);
+    protected int layer = 0;
+    Canvas attachedCanvas;
+    String text = "Text";
+
+    public UIElement(){
+        if (!SceneManager.activeScene.checkHandler(UtilityType.UI)){
+            System.err.println("No canvas found in the active scene, element could not be appended!");
+            return;
+        }
+        this.attachedCanvas = (Canvas) SceneManager.activeScene.handlers.get(UtilityType.UI);
+        this.size = new Vector2D(this.attachedCanvas.defaultElementSize.x, this.attachedCanvas.defaultElementSize.y);
+    }
 
     public UIElement setPos(float x, float y){
         this.pos = new Vector2D(x, y);
@@ -59,15 +71,34 @@ class UIElement{
         this.size = new Vector2D(x, y);
         return this;
     }
+
+    public UIElement setText(String text){
+        this.text = text;
+        return this;
+    }
+
+    public UIElement setLayer(int layer){
+        this.layer = layer;
+        this.attachedCanvas.attachedScene.sortUI();
+        return this;
+    }
+
+    public void drawElement(){
+
+    }
+}
+
+class Event{
+
 }
 
 abstract class Button extends UIElement{
     
     boolean hasOutline = false;
-    String text;
+    
 
     public Button(){
-
+        super();
     }
 
     public void onClick(){
@@ -75,34 +106,50 @@ abstract class Button extends UIElement{
     }
 }
 
-class Canvas{
-    ArrayList<UIElement> elements = new ArrayList<>();
+class Canvas implements Utility{
     Vector2D defaultElementSize;
+    Scene attachedScene;
+
+    public Canvas(Scene scene){
+        this.attachedScene = scene;
+    }
 
     public void addElement(UIElement e){
         if (e == null) { return; }
-        this.elements.add(e);
+        this.attachedScene.elements.add(e);
+        this.attachedScene.sortUI();
     }
 
     public void setDefaultElementSize(float sizeX, float sizeY){
+        this.defaultElementSize = new Vector2D(sizeX, sizeY);
+    }
 
+    public void update(Scene scene){
+        for (UIElement u : scene.elements){
+            u.drawElement();
+        }
+    }
+
+    public UtilityType getKey(){
+        return UtilityType.UI;
     }
 
 
 }
 
 class Scene{
-    Canvas sceneCanvas;
     ArrayList<Shape2D> shapes = new ArrayList<>();
     ArrayList<GameObject> gameObjects = new ArrayList<>();
     HashMap<UtilityType, Utility> handlers = new HashMap<>();
+    ArrayList<UIElement> elements = new ArrayList<>();
     String name = "0";
 
     public Scene(boolean useDefault){
         if (!useDefault) { return; }
         this.addHandler(UtilityType.Shapes)
             .addHandler(UtilityType.Collisions)
-            .addHandler(UtilityType.Objects);
+            .addHandler(UtilityType.Objects)
+            .addHandler(UtilityType.UI);
         SceneManager.addScene(this);
         if (SceneManager.activeScene == null) { SceneManager.activeScene = this; }
     }
@@ -111,6 +158,7 @@ class Scene{
         for (Utility u : handlers.values()){
             u.update(this);
         }
+        
         this.cleanup();
     }
 
@@ -126,6 +174,9 @@ class Scene{
             case Objects:
                 u = new ObjectHandler();
                 break;
+            case UI:
+                u = new Canvas(this);
+                break;
             default:
                 System.err.println("No utility type matches the type given.");
                 return this;
@@ -137,6 +188,10 @@ class Scene{
     public Scene removeHandler(UtilityType key) {
         this.handlers.remove(key);
         return this;
+    }
+
+    public boolean checkHandler(UtilityType key){
+        return this.handlers.containsKey(key);
     }
 
     private void cleanup(){
@@ -151,6 +206,10 @@ class Scene{
     protected void sortObjects(){
         shapes.sort((Shape2D a, Shape2D b) -> Integer.compare(a.gameObject.layer, b.gameObject.layer));
         gameObjects.sort((GameObject a, GameObject b) -> Integer.compare(a.layer, b.layer));
+    }
+
+    protected void sortUI(){
+        elements.sort((UIElement a, UIElement b) -> Integer.compare(a.layer, b.layer));
     }
 }
 
@@ -197,7 +256,8 @@ interface Utility{
 enum UtilityType{
     Collisions,
     Objects,
-    Shapes;
+    Shapes,
+    UI;
 }
 
 class Timer{
