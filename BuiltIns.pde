@@ -45,15 +45,84 @@ class GameObject{
     }
 }
 
+class UIBuilder{
+    UIProperties p = new UIProperties();
+
+    public UIBuilder setPos(float x, float y){
+        this.p.pos = new Vector2D(x, y);
+        return this;
+    }
+
+    public UIBuilder setSize(float x, float y){
+        this.p.size = new Vector2D(x, y);
+        return this;
+    }
+
+    public UIBuilder setText(String text){
+        this.p.text = text;
+        return this;
+    }
+
+    public UIBuilder setLayer(int layer){
+        this.p.layer = layer;
+        return this;
+    }
+
+    public UIBuilder setFill(int R, int G, int B){
+        this.p.fillColor[0] = (int) mathf.clamp(R, 0, 255);
+        this.p.fillColor[1] = (int) mathf.clamp(G, 0, 255);
+        this.p.fillColor[2] = (int) mathf.clamp(B, 0, 255);
+        return this;
+    }
+
+    public UIBuilder setTextColor(int R, int G, int B){
+        this.p.textColor[0] = (int) mathf.clamp(R, 0, 255);
+        this.p.textColor[1] = (int) mathf.clamp(G, 0, 255);
+        this.p.textColor[2] = (int) mathf.clamp(B, 0, 255);
+        return this;
+    }
+
+    public UIBuilder setType(String type){
+        this.p.type = type;
+        return this;
+    }
+
+    public UIProperties build(){
+        return this.p;
+    }
+}
+
+class UIProperties{
+    Vector2D pos = new Vector2D(0, 0);
+    Vector2D size;
+    UIShape shape = UIShape.Rect;
+    protected int layer = 0;
+    String type = "Widget";
+
+    //Text
+    String text;
+    int textSize = 20;
+
+    //Color
+    int[] fillColor = {0, 0, 0};
+    int[] borderColor = {0, 0, 0};
+    int[] textColor = {0, 0, 0};
+
+    //Settings
+    public boolean hasBorder = false;
+    int strokeThickness = 1;
+}
+
 class UIElement{
     Vector2D pos = new Vector2D(0, 0);
     Vector2D size;
     private UIShape shape = UIShape.Rect;
     protected int layer = 0;
     Canvas attachedCanvas;
+    String type = "Widget";
 
     //Text
-    String text = "Text";
+    String text;
     int textSize = 20;
 
     //Color
@@ -64,51 +133,35 @@ class UIElement{
     //Settings
     public boolean enabled = true;
     public boolean hasBorder = false;
+    protected boolean hasEvent = false;
     int strokeThickness = 1;
+    int borderSmooth = 0;
 
-    public UIElement(){
+    public UIElement(UIProperties p){
         if (!SceneManager.activeScene.checkHandler(UtilityType.UI)){
             System.err.println("No canvas found in the active scene, element could not be appended!");
             return;
         }
+        this.pos.x = p.pos.x;
+        this.pos.y = p.pos.y;
+        this.size = (p.size != null) ? new Vector2D(p.size.x, p.size.y) : 
+                        new Vector2D(this.attachedCanvas.defaultElementSize.x, this.attachedCanvas.defaultElementSize.y);
+        for (int i = 0; i < this.fillColor.length; i++){
+            this.fillColor[i] = p.fillColor[i];
+            this.textColor[i] = p.textColor[i];
+            this.borderColor[i] = p.borderColor[i];
+        }
+        if (p.text != null){
+            this.text = p.text;
+        }
         this.attachedCanvas = (Canvas) SceneManager.activeScene.handlers.get(UtilityType.UI);
-        this.size = new Vector2D(this.attachedCanvas.defaultElementSize.x, this.attachedCanvas.defaultElementSize.y);
         this.attachedCanvas.addElement(this);
     }
 
-    public UIElement setPos(float x, float y){
-        this.pos = new Vector2D(x, y);
-        return this;
-    }
-
-    public UIElement setSize(float x, float y){
-        this.size = new Vector2D(x, y);
-        return this;
-    }
-
-    public UIElement setText(String text){
-        this.text = text;
-        return this;
-    }
-
-    public UIElement setLayer(int layer){
-        this.layer = layer;
-        this.attachedCanvas.attachedScene.sortUI();
-        return this;
-    }
-
-    public UIElement setFill(int R, int G, int B){
+    public void changeColor(int R, int G, int B){
         this.fillColor[0] = (int) mathf.clamp(R, 0, 255);
         this.fillColor[1] = (int) mathf.clamp(G, 0, 255);
         this.fillColor[2] = (int) mathf.clamp(B, 0, 255);
-        return this;
-    }
-
-    public UIElement setTextColor(int R, int G, int B){
-        this.textColor[0] = (int) mathf.clamp(R, 0, 255);
-        this.textColor[1] = (int) mathf.clamp(G, 0, 255);
-        this.textColor[2] = (int) mathf.clamp(B, 0, 255);
-        return this;
     }
 
     public void drawElement(){
@@ -120,7 +173,8 @@ class UIElement{
                 }
                 else { noStroke(); }
                 fill(this.fillColor[0], this.fillColor[1], this.fillColor[2]);
-                rect(this.pos.x, this.pos.y, this.size.x, this.size.y);
+                rect(this.pos.x, this.pos.y, this.size.x, this.size.y, this.borderSmooth);
+                noStroke();
                 if (this.text != null) { 
                     float tWidth = textWidth(this.text);
                     textSize(this.textSize);
@@ -143,25 +197,59 @@ enum UIShape{
     Image;
 }
 
-static class EventListener{
-    ArrayList<Character> keys = new ArrayList<>();
+enum EventSource{
+    MouseClick,
+    MouseMove;
+}
 
-    
+static class EventListener{
+    static ArrayList<Character> keys = new ArrayList<>();
+
+    public static void checkEvents(EventSource e){
+        Scene tmp = SceneManager.activeScene;
+        for(UIElement u : tmp.elements){
+            if (!u.hasEvent) continue;
+
+            switch(u.type){
+                case "Button":
+                    Button b = (Button) u;
+                    if (b.getEvent()){
+                        if (!b.eventConfig.containsKey(e)) {continue;}
+                        b.eventConfig.get(e).run();
+                    }
+                    else {
+                        if (!b.negativeConfig.containsKey(e)) {continue;}
+                        b.negativeConfig.get(e).run();
+                    }
+                    break; 
+            }
+        }
+    }
+
 }
 
 abstract class Button extends UIElement{
-    String type = "Button";
+    HashMap<EventSource, Runnable> eventConfig = 
+            new HashMap<>(Map.of(EventSource.MouseClick, () -> this.onClick(),
+                                EventSource.MouseMove, () -> this.onHover()));
+    HashMap<EventSource, Runnable> negativeConfig =
+            new HashMap<>(Map.of(EventSource.MouseMove, () -> this.onHoverExit()));
 
-    public Button(){
-        super();
+    public Button(UIProperties p){
+        super(p);
+        this.hasEvent = true;
+        this.type = "Button";
     }
 
-    public void onClick(){
+    public void onClick(){};
 
-    }
+    public void onHover(){};
 
-    public void onHover(){
+    public void onHoverExit(){};
 
+    public boolean getEvent(){
+        return ((mouseX > this.pos.x - this.size.x/2 && mouseX < this.pos.x + this.size.x/2) &&
+                (mouseY > this.pos.y - this.size.y/2 && mouseY < this.pos.y + this.size.y/2));
     }
 }
 

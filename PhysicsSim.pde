@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.io.FileWriter;
@@ -9,7 +10,7 @@ import java.io.File;
 
 
 boolean[] keys = new boolean[4];
-
+Box box;
 
 void setup(){
   //Processing stuff
@@ -19,8 +20,39 @@ void setup(){
   rectMode(CENTER);
   imageMode(CENTER);
 
-  UIElement temp = new UIElement().setPos(360, 360).setSize(200, 100);
-  temp.setText("Test this text").setFill(100, 0, 255).setTextColor(255, 255, 255);
+  TestButton temp = new TestButton(new UIBuilder().setPos(200, 360)
+                                                  .setSize(100, 50)
+                                                  .setFill(255, 255, 255)
+                                                  .setText("Button1")
+                                                  .setType("Button")
+                                                  .build());
+  temp.setColor(255, 0, 0);
+  temp.hasBorder = true;
+  temp.borderSmooth = 10;
+  temp = new TestButton(new UIBuilder().setPos(360, 360)
+                                       .setSize(100, 50)
+                                       .setFill(255, 255, 255)
+                                       .setTextColor(0, 0, 0)
+                                       .setText("Button2")
+                                       .setType("Button")
+                                       .build());
+  temp.setColor(0, 255, 0);
+  temp.hasBorder = true;
+  temp.borderSmooth = 10;
+  temp = new TestButton(new UIBuilder().setPos(520, 360)
+                                       .setSize(100, 50)
+                                       .setFill(255, 255, 255)
+                                       .setText("Button3")
+                                       .setType("Button")
+                                       .build());
+  temp.setColor(0, 0, 255);
+  temp.hasBorder = true;
+  temp.borderSmooth = 10;
+
+  box = new Box(shapeBuilder.setCollider(ColliderType.Square)
+                                .setPos(360, 600)
+                                .setSize(100, 100)
+                                .build());
   //temp.strokeThickness = 10;
   
 }
@@ -45,8 +77,10 @@ void keyReleased(){
 }
 
 void mousePressed(){
+  EventListener.checkEvents(EventSource.MouseClick);
+}
 
-  
-  
+void mouseMoved(){
+  EventListener.checkEvents(EventSource.MouseMove);
 }
 
