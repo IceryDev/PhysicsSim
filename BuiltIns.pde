@@ -63,6 +63,11 @@ class UIBuilder{
         return this;
     }
 
+    public UIBuilder removeText(){
+        this.p.text = null;
+        return this;
+    }
+
     public UIBuilder setLayer(int layer){
         this.p.layer = layer;
         return this;
@@ -87,6 +92,21 @@ class UIBuilder{
         return this;
     }
 
+    public UIBuilder setBorder(boolean hasBorder){
+        this.p.hasBorder = hasBorder;
+        return this;
+    }
+
+    public UIBuilder setSmooth(int smooth){
+        this.p.borderSmooth = smooth;
+        return this;
+    }
+
+    public UIBuilder addImage(PImage img){
+        this.p.img = img;
+        return this;
+    }
+
     public UIProperties build(){
         return this.p;
     }
@@ -98,6 +118,7 @@ class UIProperties{
     UIShape shape = UIShape.Rect;
     protected int layer = 0;
     String type = "Widget";
+    PImage img;
 
     //Text
     String text;
@@ -111,15 +132,17 @@ class UIProperties{
     //Settings
     public boolean hasBorder = false;
     int strokeThickness = 1;
+    int borderSmooth = 0;
 }
 
 class UIElement{
     Vector2D pos = new Vector2D(0, 0);
     Vector2D size;
-    private UIShape shape = UIShape.Rect;
+    public UIShape shape = UIShape.Rect;
     protected int layer = 0;
     Canvas attachedCanvas;
     String type = "Widget";
+    PImage img;
 
     //Text
     String text;
@@ -154,6 +177,11 @@ class UIElement{
         if (p.text != null){
             this.text = p.text;
         }
+        if (p.img != null){
+            this.img = p.img;
+        }
+        this.hasBorder = p.hasBorder;
+        this.borderSmooth = p.borderSmooth;
         this.attachedCanvas = (Canvas) SceneManager.activeScene.handlers.get(UtilityType.UI);
         this.attachedCanvas.addElement(this);
     }
@@ -183,6 +211,21 @@ class UIElement{
                 }
                 break;
             case Ellipse:
+                if(this.hasBorder) { 
+                    stroke(this.borderColor[0], this.borderColor[1], this.borderColor[2]); 
+                    strokeWeight(this.strokeThickness);
+                }
+                else { noStroke(); }
+                fill(this.fillColor[0], this.fillColor[1], this.fillColor[2]);
+                ellipse(this.pos.x, this.pos.y, this.size.x, this.size.y);
+                noStroke();
+                if (this.text != null) { 
+                    float tWidth = textWidth(this.text);
+                    textSize(this.textSize);
+                    fill(this.textColor[0], this.textColor[1], this.textColor[2]);
+                    text(this.text, this.pos.x - (tWidth/2), this.pos.y + (this.textSize/3)); 
+                }
+                break;
             case Image:
             default:
                 System.out.println("No such shape type exists in the drawElement method.");
@@ -199,6 +242,7 @@ enum UIShape{
 
 enum EventSource{
     MouseClick,
+    MouseRelease,
     MouseMove;
 }
 
@@ -231,9 +275,11 @@ static class EventListener{
 abstract class Button extends UIElement{
     HashMap<EventSource, Runnable> eventConfig = 
             new HashMap<>(Map.of(EventSource.MouseClick, () -> this.onClick(),
-                                EventSource.MouseMove, () -> this.onHover()));
+                                EventSource.MouseMove, () -> this.onHover(),
+                                EventSource.MouseRelease, () -> this.onRelease()));
     HashMap<EventSource, Runnable> negativeConfig =
-            new HashMap<>(Map.of(EventSource.MouseMove, () -> this.onHoverExit()));
+            new HashMap<>(Map.of(EventSource.MouseMove, () -> this.onHoverExit(),
+                                EventSource.MouseRelease, () -> this.onRelease()));
 
     public Button(UIProperties p){
         super(p);
@@ -246,6 +292,8 @@ abstract class Button extends UIElement{
     public void onHover(){};
 
     public void onHoverExit(){};
+
+    public void onRelease(){};
 
     public boolean getEvent(){
         return ((mouseX > this.pos.x - this.size.x/2 && mouseX < this.pos.x + this.size.x/2) &&
@@ -289,6 +337,7 @@ class Scene{
     HashMap<UtilityType, Utility> handlers = new HashMap<>();
     ArrayList<UIElement> elements = new ArrayList<>();
     String name = "0";
+    private int[] backgroundColor = {0, 0, 0};
 
     public Scene(boolean useDefault){
         if (!useDefault) { return; }
@@ -301,11 +350,24 @@ class Scene{
     }
 
     public void updateScene(){
+        background(this.backgroundColor[0], this.backgroundColor[1], this.backgroundColor[2]);
         for (Utility u : handlers.values()){
             u.update(this);
         }
         
         this.cleanup();
+    }
+
+    public void changeBackground(int grayScale){
+        this.backgroundColor[0] = (int) mathf.clamp(grayScale, 0, 255);
+        this.backgroundColor[1] = (int) mathf.clamp(grayScale, 0, 255);
+        this.backgroundColor[2] = (int) mathf.clamp(grayScale, 0, 255);
+    }
+
+    public void changeBackground(int R, int G, int B){
+        this.backgroundColor[0] = (int) mathf.clamp(R, 0, 255);
+        this.backgroundColor[1] = (int) mathf.clamp(G, 0, 255);
+        this.backgroundColor[2] = (int) mathf.clamp(B, 0, 255);
     }
 
     public Scene addHandler(UtilityType ut){
@@ -372,7 +434,7 @@ static class SceneManager{
     }
 
     public static void addScene(Scene scene){
-        scene.name = "" + scenes.size();
+        scene.name = "" + (scenes.size());
         scenes.put(scene.name, scene);
     }
 
@@ -384,6 +446,10 @@ static class SceneManager{
     public static void listScenes(){
         for (Scene s : scenes.values()){
             System.out.println("Scene: " + s.name);
+        }
+
+        for (String s : scenes.keySet()){
+            System.out.println(s);
         }
     }
 
