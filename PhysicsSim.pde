@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.io.FileWriter;
@@ -18,6 +19,6 @@ void setup(){
 }
 
 void draw(){
-  background(0); //Draw background each frame
-  
+  //Code here
+  SceneManager.updateActive();
 }
